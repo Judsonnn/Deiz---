@@ -3,11 +3,19 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float speed = 5f;
-    public float jumpForce = 8f;
+    public float jumpForce = 7f;
     public int maxJumps = 2;
 
     private int jumpCount;
+
     private Rigidbody2D rb;
+
+    [Header("Ground Check")]
+    public Transform groundCheck;
+    public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
+    public LayerMask groundLayer;
+
+    private bool isGrounded;
 
     void Start()
     {
@@ -17,7 +25,20 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         float move = Input.GetAxis("Horizontal");
+
         rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+
+        isGrounded = Physics2D.OverlapBox(
+            groundCheck.position,
+            groundCheckSize,
+            0,
+            groundLayer
+        );
+
+        if (isGrounded)
+        {
+            jumpCount = 0;
+        }
 
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumps)
         {
@@ -26,11 +47,15 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    private void OnDrawGizmosSelected()
     {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            jumpCount = 0;
-        }
+        if (groundCheck == null) return;
+
+        Gizmos.color = Color.green;
+
+        Gizmos.DrawWireCube(
+            groundCheck.position,
+            groundCheckSize
+        );
     }
 }
