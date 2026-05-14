@@ -24,6 +24,7 @@ public class HeartSystem : MonoBehaviour
     void Update()
     {
         HealthLogic();
+        DeadState();
     }
     
     void HealthLogic()
@@ -52,6 +53,26 @@ public class HeartSystem : MonoBehaviour
                     coracao[i].enabled = false;
                 }
             }
+        }
+    }
+
+    // ReSharper disable Unity.PerformanceAnalysis
+    void DeadState()
+    {
+        Debug.Log("vida atual" + vida);
+        if (vida <= 0)
+        {
+            Debug.Log("Morreu");
+
+            GetComponent<PlayerController>().enabled = false;
+            Destroy(gameObject, 1.0f);
+        }
+       // if (vida <= 0)
+        {
+            
+          //  Debug.Log("Game Over");
+           // GetComponent<PlayerController>().enabled = false;
+           // Destroy(gameObject, 1.0f);
         }
     }
 }
