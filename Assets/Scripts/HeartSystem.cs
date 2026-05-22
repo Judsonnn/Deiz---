@@ -25,6 +25,10 @@ public class HeartSystem : MonoBehaviour
     {
         HealthLogic();
         DeadState();
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            vida--;
+        }
     }
     
     void HealthLogic()
