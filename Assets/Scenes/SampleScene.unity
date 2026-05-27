@@ -877,7 +877,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 7
+  orthographic size: 6
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -902,7 +902,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.132071, y: 6.22267, z: -7}
+  m_LocalPosition: {x: 8.128581, y: 5.22267, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -986,7 +986,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 886251e9a18ece04ea8e61686c173e1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachinePositionComposer
-  CameraDistance: 7
+  CameraDistance: 6
   DeadZoneDepth: 0.017
   Composition:
     ScreenPosition: {x: 0, y: 0}
@@ -1030,7 +1030,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 34
-    OrthographicSize: 7
+    OrthographicSize: 6
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -1057,7 +1057,7 @@ Transform:
   m_GameObject: {fileID: 553295583}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.12732, y: 4.85551, z: -7}
+  m_LocalPosition: {x: 8.12732, y: 4.85551, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1686,7 +1686,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9b988a77ca0d0748a234f710ceaf8ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  speed: 5
+  speed: 4.5
   jumpForce: 8
   maxJumps: 2
   groundCheck: {fileID: 125253190}
@@ -1694,6 +1694,9 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
+  look: {fileID: 638872240}
+  cameraTarget: {fileID: 1479164808}
+  cameraSpeed: 10.5
 --- !u!114 &950324750
 MonoBehaviour:
   m_ObjectHideFlags: 0
