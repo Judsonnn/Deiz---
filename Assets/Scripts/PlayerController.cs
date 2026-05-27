@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -14,8 +15,12 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
     public LayerMask groundLayer;
+    
 
     private bool isGrounded;
+    public Transform look;
+    public Transform cameraTarget;
+    public float cameraSpeed;
 
     void Start()
     {
@@ -45,6 +50,13 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             jumpCount++;
         }
+
+        CameraMove();
+    }
+    void CameraMove()
+    {
+        cameraTarget.position =
+            Vector3.MoveTowards(cameraTarget.position, look.position, cameraSpeed*Time.deltaTime);
     }
 
     private void OnDrawGizmosSelected()
