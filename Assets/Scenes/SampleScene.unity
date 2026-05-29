@@ -1697,7 +1697,7 @@ MonoBehaviour:
     m_Bits: 256
   cameraTarget: {fileID: 1479164808}
   cameraSpeed: 10.5
-  lookAheadDistance: 0.7
+  lookAheadDistance: 1.7
 --- !u!114 &950324750
 MonoBehaviour:
   m_ObjectHideFlags: 0
