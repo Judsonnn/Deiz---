@@ -18,9 +18,11 @@ public class PlayerController : MonoBehaviour
     
 
     private bool isGrounded;
-    public Transform look;
     public Transform cameraTarget;
     public float cameraSpeed;
+    public float lookAheadDistance;
+
+    private Vector3 targetPosition;
 
     void Start()
     {
@@ -51,14 +53,29 @@ public class PlayerController : MonoBehaviour
             jumpCount++;
         }
 
-        CameraMove();
-    }
-    void CameraMove()
-    {
-        cameraTarget.position =
-            Vector3.MoveTowards(cameraTarget.position, look.position, cameraSpeed*Time.deltaTime);
-    }
+        if (move > 0)
+        {
+            targetPosition = new Vector3(
+                lookAheadDistance,
+                cameraTarget.localPosition.y,
+                cameraTarget.localPosition.z
+            );
+        }
+        else if (move < 0)
+        {
+            targetPosition = new Vector3(
+                -lookAheadDistance,
+                cameraTarget.localPosition.y,
+                cameraTarget.localPosition.z
+            );
+        }
 
+        cameraTarget.localPosition = Vector3.Lerp(
+            cameraTarget.localPosition,
+            targetPosition,
+            cameraSpeed * Time.deltaTime
+        );
+    }
     private void OnDrawGizmosSelected()
     {
         if (groundCheck == null) return;
