@@ -4,7 +4,8 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float speed = 4.5f;
-    public float jumpForce = 8f;
+    public float firstJumpForce = 8f;
+    public float secondJumpForce = 5f;
     public int maxJumps = 2;
 
     private int jumpCount;
@@ -49,7 +50,21 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumps)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            if (jumpCount == 0)
+            {
+                rb.linearVelocity = new Vector2(
+                    rb.linearVelocity.x,
+                    firstJumpForce
+                );
+            }
+            else
+            {
+                rb.linearVelocity = new Vector2(
+                    rb.linearVelocity.x,
+                    secondJumpForce
+                );
+            }
+
             jumpCount++;
         }
 
