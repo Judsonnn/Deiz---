@@ -67,7 +67,13 @@ public class PlayerController : MonoBehaviour
 
             jumpCount++;
         }
-
+        if (Input.GetKeyUp(KeyCode.Space) && rb.linearVelocity.y > 0)
+        {
+            rb.linearVelocity = new Vector2(
+                rb.linearVelocity.x,
+                rb.linearVelocity.y * 0.5f
+            );
+        }
         if (move > 0)
         {
             targetPosition = new Vector3(
