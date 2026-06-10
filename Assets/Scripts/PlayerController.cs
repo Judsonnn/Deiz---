@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
     public float firstJumpForce = 8f;
     public float secondJumpForce = 5f;
     public int maxJumps = 2;
+    
+    public int health = 3;
 
     private int jumpCount;
 
@@ -107,5 +109,16 @@ public class PlayerController : MonoBehaviour
             groundCheck.position,
             groundCheckSize
         );
+    }
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+
+        Debug.Log("Vida: " + health);
+
+        if (health <= 0)
+        {
+            Debug.Log("Morreu");
+        }
     }
 }

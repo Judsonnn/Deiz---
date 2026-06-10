@@ -59,8 +59,7 @@ public class HeartSystem : MonoBehaviour
             }
         }
     }
-
-    // ReSharper disable Unity.PerformanceAnalysis
+    
     void DeadState()
     {
         Debug.Log("vida atual" + vida);
