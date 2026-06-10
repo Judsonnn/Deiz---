@@ -72,8 +72,12 @@ public class EnemyController : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        Debug.Log("Colidiu");
+
         if (collision.gameObject.CompareTag("Player"))
         {
+            Debug.Log("Acertou Player");
+
             PlayerController player =
                 collision.gameObject.GetComponent<PlayerController>();
 
