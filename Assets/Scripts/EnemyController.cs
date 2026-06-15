@@ -3,12 +3,14 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     public float speed = 3f;
-    
     public int damage = 1;
 
     private Transform player;
     private bool playerDetected;
     
+    private bool canDamage = true;
+    public float damageCooldown = 1f;
+
     [Header("Ground Check")]
     public Transform groundCheck;
     public float groundCheckDistance = 0.5f;
@@ -25,11 +27,8 @@ public class EnemyController : MonoBehaviour
                 groundLayer
             );
 
-            Debug.Log("Ground Ahead: " + groundAhead);
-
             if (!groundAhead)
             {
-                Debug.Log("Sem chão");
                 return;
             }
 
@@ -54,37 +53,46 @@ public class EnemyController : MonoBehaviour
             );
         }
     }
-    private void OnDrawGizmosSelected()
-    {
-        if (groundCheck == null) return;
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(
-            groundCheck.position,
-            groundCheck.position + Vector3.down * groundCheckDistance
-        );
-    }
 
     public void DetectPlayer(Transform target)
     {
         player = target;
         playerDetected = true;
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        Debug.Log("Colidiu");
+        if (!canDamage) return;
 
         if (collision.gameObject.CompareTag("Player"))
         {
-            Debug.Log("Acertou Player");
+            HeartSystem heart =
+                collision.gameObject.GetComponent<HeartSystem>();
 
-            PlayerController player =
-                collision.gameObject.GetComponent<PlayerController>();
-
-            if (player != null)
+            if (heart != null)
             {
-                player.TakeDamage(damage);
+                heart.vida -= damage;
+
+                canDamage = false;
+                Invoke(nameof(ResetDamage), damageCooldown);
             }
         }
+    }
+
+    private void ResetDamage()
+    {
+        canDamage = true;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (groundCheck == null) return;
+
+        Gizmos.color = Color.red;
+
+        Gizmos.DrawLine(
+            groundCheck.position,
+            groundCheck.position + Vector3.down * groundCheckDistance
+        );
     }
 }

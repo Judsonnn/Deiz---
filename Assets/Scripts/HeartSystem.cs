@@ -63,12 +63,19 @@ public class HeartSystem : MonoBehaviour
     void DeadState()
     {
         Debug.Log("vida atual" + vida);
-        if (vida <= 0)
         {
-            Debug.Log("Morreu");
+            if (vida < 0)
+            {
+                vida = 0;
+            }
 
-            GetComponent<PlayerController>().enabled = false;
-            Destroy(gameObject, 1.0f);
+            if (vida <= 0)
+            {
+                Debug.Log("Morreu");
+
+                GetComponent<PlayerController>().enabled = false;
+                Destroy(gameObject, 1.0f);
+            }
         }
        // if (vida <= 0)
         {
