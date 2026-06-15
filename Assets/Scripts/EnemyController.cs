@@ -7,7 +7,7 @@ public class EnemyController : MonoBehaviour
 
     private Transform player;
     private bool playerDetected;
-    
+
     private bool canDamage = true;
     public float damageCooldown = 1f;
 
@@ -15,42 +15,58 @@ public class EnemyController : MonoBehaviour
     public Transform groundCheck;
     public float groundCheckDistance = 0.5f;
     public LayerMask groundLayer;
+    
+    [Header("Patrol")]
+    public bool patrolRight = true;
 
     void Update()
     {
-        if (playerDetected)
+        if (player == null)
         {
-            bool groundAhead = Physics2D.Raycast(
-                groundCheck.position,
-                Vector2.down,
-                groundCheckDistance,
-                groundLayer
-            );
+            playerDetected = false;
+            return;
+        }
 
-            if (!groundAhead)
+        if (!playerDetected)
+            return;
+
+        bool groundAhead = Physics2D.Raycast(
+            groundCheck.position,
+            Vector2.down,
+            groundCheckDistance,
+            groundLayer
+        );
+        
+        Vector2 targetPosition = new Vector2(
+            player.position.x,
+            transform.position.y
+        );
+
+        if (player.position.x > transform.position.x)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+
+            if (groundAhead)
             {
-                return;
+                transform.position = Vector2.MoveTowards(
+                    transform.position,
+                    targetPosition,
+                    speed * Time.deltaTime
+                );
             }
+        }
+        else
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
 
-            Vector2 targetPosition = new Vector2(
-                player.position.x,
-                transform.position.y
-            );
-
-            if (player.position.x > transform.position.x)
+            if (groundAhead)
             {
-                transform.localScale = new Vector3(1, 1, 1);
+                transform.position = Vector2.MoveTowards(
+                    transform.position,
+                    targetPosition,
+                    speed * Time.deltaTime
+                );
             }
-            else
-            {
-                transform.localScale = new Vector3(-1, 1, 1);
-            }
-
-            transform.position = Vector2.MoveTowards(
-                transform.position,
-                targetPosition,
-                speed * Time.deltaTime
-            );
         }
     }
 
