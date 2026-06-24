@@ -2697,7 +2697,7 @@ MonoBehaviour:
   IgnoreTimeScale: 0
   WorldUpOverride: {fileID: 0}
   ChannelMask: -1
-  UpdateMethod: 0
+  UpdateMethod: 1
   BlendUpdateMethod: 1
   LensModeOverride:
     Enabled: 0
@@ -7348,7 +7348,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -8729881625419622333, guid: 2664630b67a76b84fbfe0af8ab55a593, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -7531,7 +7531,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2220265840710311818, guid: 76eafa4d3130d9b45b6a59a3f9e3a103, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
