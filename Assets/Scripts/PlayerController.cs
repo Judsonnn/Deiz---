@@ -31,33 +31,32 @@ public class PlayerController : MonoBehaviour
     
     private bool takingDamage = false;
     
-    private Vector3 originalScale;
+  
     
     
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        originalScale = transform.localScale;
     }
 
     void Update()
     {
         float move = Input.GetAxis("Horizontal");
-        
+
         if (move > 0)
         {
             transform.localScale = new Vector3(
-                Mathf.Abs(originalScale.x),
-                originalScale.y,
-                originalScale.z
+                1.3f,
+                1.68f,
+                1f
             );
         }
         else if (move < 0)
         {
             transform.localScale = new Vector3(
-                -Mathf.Abs(originalScale.x),
-                originalScale.y,
-                originalScale.z
+                -1.3f,
+                1.68f,
+                1f
             );
         }
 
