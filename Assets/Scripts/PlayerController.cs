@@ -12,8 +12,6 @@ public class PlayerController : MonoBehaviour
 
     private int jumpCount;
 
-    private Rigidbody2D rb;
-
     [Header("Ground Check")]
     public Transform groundCheck;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
@@ -26,17 +24,50 @@ public class PlayerController : MonoBehaviour
     public float lookAheadDistance;
 
     private Vector3 targetPosition;
+    
+    public float knockbackForce = 10f;
 
+    private Rigidbody2D rb;
+    
+    private bool takingDamage = false;
+    
+    private Vector3 originalScale;
+    
+    
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        originalScale = transform.localScale;
     }
 
     void Update()
     {
         float move = Input.GetAxis("Horizontal");
+        
+        if (move > 0)
+        {
+            transform.localScale = new Vector3(
+                Mathf.Abs(originalScale.x),
+                originalScale.y,
+                originalScale.z
+            );
+        }
+        else if (move < 0)
+        {
+            transform.localScale = new Vector3(
+                -Mathf.Abs(originalScale.x),
+                originalScale.y,
+                originalScale.z
+            );
+        }
 
-        rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+        if (!takingDamage)
+        {
+            rb.linearVelocity = new Vector2(
+                move * speed,
+                rb.linearVelocity.y
+            );
+        }
 
         isGrounded = Physics2D.OverlapBox(
             groundCheck.position,
@@ -98,6 +129,36 @@ public class PlayerController : MonoBehaviour
             targetPosition,
             cameraSpeed * Time.deltaTime
         );
+    }
+    public void TakeDamage(int damage, Transform enemy)
+    {
+        HeartSystem heart = GetComponent<HeartSystem>();
+
+        if (heart != null)
+        {
+            heart.vida -= damage;
+        }
+
+        takingDamage = true;
+
+        float direction =
+            transform.position.x > enemy.position.x ? 1f : -1f;
+
+        Vector2 knockbackDirection =
+            new Vector2(direction, 1f).normalized;
+
+        rb.linearVelocity = Vector2.zero;
+
+        rb.AddForce(
+            knockbackDirection * knockbackForce,
+            ForceMode2D.Impulse
+        );
+
+        Invoke(nameof(StopTakingDamage), 0.3f);
+    }
+    private void StopTakingDamage()
+    {
+        takingDamage = false;
     }
     private void OnDrawGizmosSelected()
     {

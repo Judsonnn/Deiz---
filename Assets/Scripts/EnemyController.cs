@@ -13,7 +13,7 @@ public class EnemyController : MonoBehaviour
 
     [Header("Ground Check")]
     public Transform groundCheck;
-    public float groundCheckDistance = 0.5f;
+    public float groundCheckDistance = 1f;
     public LayerMask groundLayer;
     
     [Header("Patrol")]
@@ -44,7 +44,7 @@ public class EnemyController : MonoBehaviour
 
         if (player.position.x > transform.position.x)
         {
-            transform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(-1, 1, 1);
 
             if (groundAhead)
             {
@@ -57,7 +57,7 @@ public class EnemyController : MonoBehaviour
         }
         else
         {
-            transform.localScale = new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(1, 1, 1);
 
             if (groundAhead)
             {
@@ -82,12 +82,15 @@ public class EnemyController : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Player"))
         {
-            HeartSystem heart =
-                collision.gameObject.GetComponent<HeartSystem>();
+            PlayerController playerController =
+                collision.gameObject.GetComponent<PlayerController>();
 
-            if (heart != null)
+            if (playerController != null)
             {
-                heart.vida -= damage;
+                playerController.TakeDamage(
+                    damage,
+                    transform
+                );
 
                 canDamage = false;
                 Invoke(nameof(ResetDamage), damageCooldown);
