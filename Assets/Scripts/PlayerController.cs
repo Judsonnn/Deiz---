@@ -32,35 +32,25 @@ public class PlayerController : MonoBehaviour
     public float knockbackForce = 10f;
 
     private Rigidbody2D rb;
-
     private bool takingDamage = false;
+
+    public SpriteRenderer spriteRenderer;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = normalGravity;
-    }
+        transform.localScale = Vector3.one;
+    } // << essa chave estava faltando
 
     void Update()
     {
         float move = Input.GetAxis("Horizontal");
 
         if (move > 0)
-        {
-            transform.localScale = new Vector3(
-                1.3f,
-                1.68f,
-                1f
-            );
-        }
+            spriteRenderer.flipX = false;
         else if (move < 0)
-        {
-            transform.localScale = new Vector3(
-                -1.3f,
-                1.68f,
-                1f
-            );
-        }
+            spriteRenderer.flipX = true;
 
         if (!takingDamage)
         {
@@ -84,7 +74,6 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumps)
         {
-            // Zera a velocidade vertical para deixar os pulos consistentes
             rb.linearVelocity = new Vector2(
                 rb.linearVelocity.x,
                 0f
@@ -134,21 +123,16 @@ public class PlayerController : MonoBehaviour
 
     void FixedUpdate()
     {
-        // Gravidade dinâmica
-
         if (rb.linearVelocity.y < 0)
         {
-            // Está caindo
             rb.gravityScale = fallGravity;
         }
         else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
         {
-            // Soltou o botão antes do topo
             rb.gravityScale = lowJumpGravity;
         }
         else
         {
-            // Subida normal
             rb.gravityScale = normalGravity;
         }
     }

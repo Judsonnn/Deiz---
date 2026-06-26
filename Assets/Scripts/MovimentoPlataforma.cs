@@ -83,11 +83,17 @@ public class MovingPlatformController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            playerScale = other.transform.localScale;
+            Vector3 worldScale = other.transform.lossyScale; // scale no mundo
 
             other.transform.SetParent(transform, true);
 
-            other.transform.localScale = playerScale;
+            // Compensa a escala do pai novo
+            Vector3 parentScale = transform.lossyScale;
+            other.transform.localScale = new Vector3(
+                worldScale.x / parentScale.x,
+                worldScale.y / parentScale.y,
+                worldScale.z / parentScale.z
+            );
         }
     }
 
@@ -95,11 +101,11 @@ public class MovingPlatformController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            playerScale = other.transform.localScale;
+            Vector3 worldScale = other.transform.lossyScale; // salva antes de desparentar
 
             other.transform.SetParent(null, true);
 
-            other.transform.localScale = playerScale;
+            other.transform.localScale = worldScale; // restaura direto
         }
     }
 
