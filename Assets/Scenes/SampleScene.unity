@@ -508,7 +508,7 @@ Transform:
   m_GameObject: {fileID: 125253189}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.12, y: -0.682, z: 0}
+  m_LocalPosition: {x: 0.12, y: -1.26, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2466,7 +2466,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.818676, y: 4.1124597, z: -10}
+  m_LocalPosition: {x: 16.819317, y: 4.1124597, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2790,7 +2790,7 @@ Transform:
   m_GameObject: {fileID: 553295583}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.81732, y: 3.6458988, z: -10}
+  m_LocalPosition: {x: 16.81732, y: 3.415899, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4476,7 +4476,7 @@ Transform:
   m_GameObject: {fileID: 950324744}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.09, y: 1.42, z: 0}
+  m_LocalPosition: {x: 4.09, y: 1.19, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4502,20 +4502,21 @@ MonoBehaviour:
   firstJumpForce: 12
   secondJumpForce: 9
   maxJumps: 2
-  health: 3
+  normalGravity: 2
+  fallGravity: 2.8
+  lowJumpGravity: 2
+  maxFallSpeed: 18
   groundCheck: {fileID: 125253190}
   groundCheckSize: {x: 0.3, y: 0.1}
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
-  normalGravity: 2
-  fallGravity: 2.8
-  lowJumpGravity: 2
   cameraTarget: {fileID: 1479164808}
   cameraSpeed: 10.5
   lookAheadDistance: 1.7
   knockbackForce: 8
   spriteRenderer: {fileID: 675622233}
+  health: 3
 --- !u!114 &950324750
 MonoBehaviour:
   m_ObjectHideFlags: 0
