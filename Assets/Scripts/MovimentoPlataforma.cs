@@ -77,19 +77,29 @@ public class MovingPlatformController : MonoBehaviour
         transform.position += (Vector3)_currentMoveDirection * (moveSpeed * Time.fixedDeltaTime);
     }
 
+    private Vector3 playerScale;
+
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            other.transform.SetParent(transform);
+            playerScale = other.transform.localScale;
+
+            other.transform.SetParent(transform, true);
+
+            other.transform.localScale = playerScale;
         }
     }
-    
+
     private void OnCollisionExit2D(Collision2D other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            other.transform.SetParent(null);
+            playerScale = other.transform.localScale;
+
+            other.transform.SetParent(null, true);
+
+            other.transform.localScale = playerScale;
         }
     }
 

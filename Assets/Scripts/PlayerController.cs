@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     public float firstJumpForce = 8f;
     public float secondJumpForce = 5f;
     public int maxJumps = 2;
-    
+
     public int health = 3;
 
     private int jumpCount;
@@ -16,7 +16,11 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
     public LayerMask groundLayer;
-    
+
+    [Header("Jump Gravity")]
+    public float normalGravity = 2f;
+    public float fallGravity = 5f;
+    public float lowJumpGravity = 4f;
 
     private bool isGrounded;
     public Transform cameraTarget;
@@ -24,19 +28,17 @@ public class PlayerController : MonoBehaviour
     public float lookAheadDistance;
 
     private Vector3 targetPosition;
-    
+
     public float knockbackForce = 10f;
 
     private Rigidbody2D rb;
-    
+
     private bool takingDamage = false;
-    
-  
-    
-    
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        rb.gravityScale = normalGravity;
     }
 
     void Update()
@@ -82,6 +84,12 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumps)
         {
+            // Zera a velocidade vertical para deixar os pulos consistentes
+            rb.linearVelocity = new Vector2(
+                rb.linearVelocity.x,
+                0f
+            );
+
             if (jumpCount == 0)
             {
                 rb.linearVelocity = new Vector2(
@@ -99,13 +107,7 @@ public class PlayerController : MonoBehaviour
 
             jumpCount++;
         }
-        if (Input.GetKeyUp(KeyCode.Space) && rb.linearVelocity.y > 0)
-        {
-            rb.linearVelocity = new Vector2(
-                rb.linearVelocity.x,
-                rb.linearVelocity.y * 0.5f
-            );
-        }
+
         if (move > 0)
         {
             targetPosition = new Vector3(
@@ -129,6 +131,28 @@ public class PlayerController : MonoBehaviour
             cameraSpeed * Time.deltaTime
         );
     }
+
+    void FixedUpdate()
+    {
+        // Gravidade dinâmica
+
+        if (rb.linearVelocity.y < 0)
+        {
+            // Está caindo
+            rb.gravityScale = fallGravity;
+        }
+        else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
+        {
+            // Soltou o botão antes do topo
+            rb.gravityScale = lowJumpGravity;
+        }
+        else
+        {
+            // Subida normal
+            rb.gravityScale = normalGravity;
+        }
+    }
+
     public void TakeDamage(int damage, Transform enemy)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
@@ -155,10 +179,12 @@ public class PlayerController : MonoBehaviour
 
         Invoke(nameof(StopTakingDamage), 0.3f);
     }
+
     private void StopTakingDamage()
     {
         takingDamage = false;
     }
+
     private void OnDrawGizmosSelected()
     {
         if (groundCheck == null) return;
@@ -170,6 +196,7 @@ public class PlayerController : MonoBehaviour
             groundCheckSize
         );
     }
+
     public void TakeDamage(int damage)
     {
         health -= damage;
