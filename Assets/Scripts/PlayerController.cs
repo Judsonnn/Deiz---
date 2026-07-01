@@ -87,33 +87,49 @@ public class PlayerController : MonoBehaviour
     // ──────────────────────────────────────
     // Chão
     // ──────────────────────────────────────
+    private float coyoteTimeCounter;
+    public float coyoteTime = 0.08f;
+
     private void HandleGroundCheck()
     {
-        isGrounded = Physics2D.OverlapBox(
+        bool groundedNow = Physics2D.OverlapBox(
             groundCheck.position,
             groundCheckSize,
             0,
             groundLayer
         );
 
-        if (isGrounded)
+        // Coyote time — permite pular um pouco após sair da borda
+        if (groundedNow)
+        {
+            coyoteTimeCounter = coyoteTime;
             jumpCount = 0;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+
+        isGrounded = groundedNow;
     }
 
-    // ──────────────────────────────────────
-    // Pulo — normal, duplo e variável (segurar = mais alto)
-    // ──────────────────────────────────────
     private void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumps)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            float force = jumpCount == 0 ? firstJumpForce : secondJumpForce;
-
-            // Zera velocidade vertical para pulos consistentes
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, force);
-
-            jumpCount++;
+            // Primeiro pulo — usa coyote time
+            if (coyoteTimeCounter > 0f && jumpCount == 0)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, firstJumpForce);
+                jumpCount = 1;
+                coyoteTimeCounter = 0f;
+            }
+            // Double jump
+            else if (jumpCount == 1)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, secondJumpForce);
+                jumpCount = 2;
+            }
         }
     }
 

@@ -508,8 +508,8 @@ Transform:
   m_GameObject: {fileID: 125253189}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.12, y: -1.26, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.12, y: -0.979, z: 0}
+  m_LocalScale: {x: 0.3, y: 0.05, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 950324748}
@@ -604,7 +604,7 @@ GameObject:
   - component: {fileID: 177586945}
   - component: {fileID: 177586947}
   - component: {fileID: 177586946}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Coracao (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1042,7 +1042,7 @@ GameObject:
   m_Component:
   - component: {fileID: 250210595}
   - component: {fileID: 250210594}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: escada_0 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2561,7 +2561,7 @@ GameObject:
   - component: {fileID: 551952502}
   - component: {fileID: 551952501}
   - component: {fileID: 551952503}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Parede cinza_0 (2)
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -3988,7 +3988,7 @@ GameObject:
   - component: {fileID: 784561382}
   - component: {fileID: 784561384}
   - component: {fileID: 784561383}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Rodape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4355,7 +4355,7 @@ GameObject:
   - component: {fileID: 858423626}
   - component: {fileID: 858423628}
   - component: {fileID: 858423627}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Coracao
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4503,8 +4503,8 @@ MonoBehaviour:
   secondJumpForce: 9
   maxJumps: 2
   normalGravity: 2
-  fallGravity: 2.8
-  lowJumpGravity: 2
+  fallGravity: 6
+  lowJumpGravity: 5
   maxFallSpeed: 18
   groundCheck: {fileID: 125253190}
   groundCheckSize: {x: 0.3, y: 0.1}
@@ -4517,6 +4517,7 @@ MonoBehaviour:
   knockbackForce: 8
   spriteRenderer: {fileID: 675622233}
   health: 3
+  coyoteTime: 0.08
 --- !u!114 &950324750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4578,7 +4579,7 @@ CapsuleCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 02d624ea622dd3e45a8f0e82c2590f2a, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -5293,7 +5294,7 @@ GameObject:
   - component: {fileID: 1201968523}
   - component: {fileID: 1201968525}
   - component: {fileID: 1201968524}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Coracao (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5688,7 +5689,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1272682909}
   - component: {fileID: 1272682910}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: HeartController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7214,7 +7215,7 @@ GameObject:
   - component: {fileID: 1658599134}
   - component: {fileID: 1658599137}
   - component: {fileID: 1658599136}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: escada_0 (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7397,7 +7398,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1665491094}
   - component: {fileID: 1665491093}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Parede cinza_0 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7585,7 +7586,7 @@ GameObject:
   - component: {fileID: 1753980585}
   - component: {fileID: 1753980584}
   - component: {fileID: 1753980583}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: escadao_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8890,7 +8891,7 @@ GameObject:
   - component: {fileID: 2037399354}
   - component: {fileID: 2037399353}
   - component: {fileID: 2037399352}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Canvas
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -9358,7 +9359,7 @@ GameObject:
   - component: {fileID: 2134178128}
   - component: {fileID: 2134178130}
   - component: {fileID: 2134178129}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Coracao (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
