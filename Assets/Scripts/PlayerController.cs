@@ -6,15 +6,15 @@ public class PlayerController : MonoBehaviour
     public float speed = 6f;
 
     [Header("Jump")]
-    public float firstJumpForce = 14f;
-    public float secondJumpForce = 12f;
+    public float firstJumpForce = 13f;
+    public float secondJumpForce = 11f;
     public int maxJumps = 2;
 
     [Header("Jump Gravity")]
-    public float normalGravity = 3f;
-    public float fallGravity = 7f;
-    public float lowJumpGravity = 6f;
-    public float maxFallSpeed = 18f;
+    public float normalGravity = 2f;
+    public float fallGravity = 5f;
+    public float lowJumpGravity = 4f;
+    public float maxFallSpeed = 14f;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -32,15 +32,17 @@ public class PlayerController : MonoBehaviour
     [Header("Visual")]
     public SpriteRenderer spriteRenderer;
 
-    // Saúde — usada pelo HeartSystem e EnemyController
     public int health = 3;
 
-    // Privados
     private Rigidbody2D rb;
     private bool isGrounded;
+    private bool wasGrounded;        // << estado do frame anterior
     private int jumpCount;
     private bool takingDamage = false;
     private Vector3 cameraTargetPosition;
+
+    private float coyoteTimeCounter;
+    public float coyoteTime = 0.1f;
 
     void Start()
     {
@@ -65,9 +67,6 @@ public class PlayerController : MonoBehaviour
         HandleGravity();
     }
 
-    // ──────────────────────────────────────
-    // Movimento
-    // ──────────────────────────────────────
     private void HandleMovement()
     {
         float move = Input.GetAxisRaw("Horizontal");
@@ -79,90 +78,78 @@ public class PlayerController : MonoBehaviour
         }
 
         if (!takingDamage)
-        {
             rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
-        }
     }
-
-    // ──────────────────────────────────────
-    // Chão
-    // ──────────────────────────────────────
-    private float coyoteTimeCounter;
-    public float coyoteTime = 0.08f;
 
     private void HandleGroundCheck()
     {
-        bool groundedNow = Physics2D.OverlapBox(
+        wasGrounded = isGrounded;
+
+        isGrounded = Physics2D.OverlapBox(
             groundCheck.position,
             groundCheckSize,
             0,
             groundLayer
         );
 
-        // Coyote time — permite pular um pouco após sair da borda
-        if (groundedNow)
+        if (isGrounded)
         {
             coyoteTimeCounter = coyoteTime;
-            jumpCount = 0;
+
+            // Só reseta o jumpCount quando ACABOU de pousar
+            // evita resetar enquanto caminha na borda
+            if (!wasGrounded || jumpCount > 1)
+                jumpCount = 0;
         }
         else
         {
             coyoteTimeCounter -= Time.deltaTime;
-        }
 
-        isGrounded = groundedNow;
+            // Saiu do chão sem pular — conta como primeiro pulo gasto
+            // para não ganhar pulo extra ao cair de plataforma
+            if (wasGrounded && jumpCount == 0)
+                jumpCount = 1;
+        }
     }
 
     private void HandleJump()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (!Input.GetKeyDown(KeyCode.Space)) return;
+
+        // Primeiro pulo — chão ou coyote time
+        if (coyoteTimeCounter > 0f && jumpCount <= 1)
         {
-            // Primeiro pulo — usa coyote time
-            if (coyoteTimeCounter > 0f && jumpCount == 0)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, firstJumpForce);
-                jumpCount = 1;
-                coyoteTimeCounter = 0f;
-            }
-            // Double jump
-            else if (jumpCount == 1)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, secondJumpForce);
-                jumpCount = 2;
-            }
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, firstJumpForce);
+            jumpCount = 1;
+            coyoteTimeCounter = 0f;
+        }
+        // Double jump
+        else if (jumpCount == 1)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, secondJumpForce);
+            jumpCount = 2;
         }
     }
 
-    // ──────────────────────────────────────
-    // Gravidade dinâmica
-    // Caindo     → pesado (queda rápida)
-    // Subindo    → normal se segurar Space, lowJump se soltar
-    // ──────────────────────────────────────
     private void HandleGravity()
     {
         if (rb.linearVelocity.y < 0)
         {
             rb.gravityScale = fallGravity;
 
-            // Limita velocidade de queda
             if (rb.linearVelocity.y < -maxFallSpeed)
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, -maxFallSpeed);
         }
         else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
         {
-            // Soltou o Space — corta o pulo (pulo curto)
             rb.gravityScale = lowJumpGravity;
         }
         else
         {
-            // Subindo com Space pressionado — pulo cheio
             rb.gravityScale = normalGravity;
         }
     }
 
-    // ──────────────────────────────────────
-    // Camera look-ahead
-    // ──────────────────────────────────────
     private void HandleCameraLookAhead()
     {
         if (cameraTarget == null) return;
@@ -170,23 +157,11 @@ public class PlayerController : MonoBehaviour
         float move = Input.GetAxisRaw("Horizontal");
 
         if (move > 0)
-            cameraTargetPosition = new Vector3(
-                lookAheadDistance,
-                0f,  // << sempre 0, não acumula altura
-                cameraTarget.localPosition.z
-            );
+            cameraTargetPosition = new Vector3(lookAheadDistance, 0f, cameraTarget.localPosition.z);
         else if (move < 0)
-            cameraTargetPosition = new Vector3(
-                -lookAheadDistance,
-                0f,  // << sempre 0
-                cameraTarget.localPosition.z
-            );
+            cameraTargetPosition = new Vector3(-lookAheadDistance, 0f, cameraTarget.localPosition.z);
         else
-            cameraTargetPosition = new Vector3(
-                0f,
-                0f,
-                cameraTarget.localPosition.z
-            );
+            cameraTargetPosition = new Vector3(0f, 0f, cameraTarget.localPosition.z);
 
         cameraTarget.localPosition = Vector3.Lerp(
             cameraTarget.localPosition,
@@ -195,9 +170,6 @@ public class PlayerController : MonoBehaviour
         );
     }
 
-    // ──────────────────────────────────────
-    // Dano — chamado pelo EnemyController e TriggerDamage
-    // ──────────────────────────────────────
     public void TakeDamage(int damage, Transform enemy)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
@@ -215,13 +187,13 @@ public class PlayerController : MonoBehaviour
         Invoke(nameof(StopTakingDamage), 0.3f);
     }
 
-    // Sobrecarga sem knockback — compatível com TriggerDamage e HeartSystem
     public void TakeDamage(int damage)
     {
-        health -= damage;
-
-        if (health <= 0)
-            Debug.Log("Morreu");
+        HeartSystem heart = GetComponent<HeartSystem>();
+        if (heart != null)
+            heart.vida -= damage;
+        else
+            health -= damage;
     }
 
     private void StopTakingDamage()
@@ -229,9 +201,6 @@ public class PlayerController : MonoBehaviour
         takingDamage = false;
     }
 
-    // ──────────────────────────────────────
-    // Gizmos
-    // ──────────────────────────────────────
     private void OnDrawGizmosSelected()
     {
         if (groundCheck == null) return;
