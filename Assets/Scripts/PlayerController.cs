@@ -49,29 +49,17 @@ public class PlayerController : MonoBehaviour
 
     private float coyoteTimeCounter;
     public float coyoteTime = 0.1f;
+    private PlayerShooter shooter;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = normalGravity;
         transform.localScale = Vector3.one;
-        shooter = GetComponent<PlayerShooter>();
+        shooter = GetComponent<PlayerShooter>();  // << adiciona
 
         if (cameraTarget != null)
             cameraTargetPosition = cameraTarget.localPosition;
-    }
-
-    void Update()
-    {
-        HandleMovement();
-        HandleGroundCheck();
-        HandleJump();
-        HandleCameraLookAhead();
-    }
-
-    void FixedUpdate()
-    {
-        HandleGravity();
     }
 
     private void HandleMovement()
@@ -83,12 +71,12 @@ public class PlayerController : MonoBehaviour
             if (move > 0)
             {
                 spriteRenderer.flipX = false;
-                shooter?.SetFacing(true);
+                shooter?.SetFacing(true);   // << adiciona
             }
             else if (move < 0)
             {
                 spriteRenderer.flipX = true;
-                shooter?.SetFacing(false);
+                shooter?.SetFacing(false);  // << adiciona
             }
         }
 
