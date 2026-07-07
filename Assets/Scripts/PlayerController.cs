@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -32,14 +33,19 @@ public class PlayerController : MonoBehaviour
     [Header("Visual")]
     public SpriteRenderer spriteRenderer;
 
+    [Header("Dano Visual")]
+    public float blinkDuration = 1f;
+    public float blinkInterval = 0.1f;
+
     public int health = 3;
 
     private Rigidbody2D rb;
     private bool isGrounded;
-    private bool wasGrounded;        // << estado do frame anterior
+    private bool wasGrounded;
     private int jumpCount;
     private bool takingDamage = false;
     private Vector3 cameraTargetPosition;
+    private PlayerShooter shooter;
 
     private float coyoteTimeCounter;
     public float coyoteTime = 0.1f;
@@ -49,6 +55,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = normalGravity;
         transform.localScale = Vector3.one;
+        shooter = GetComponent<PlayerShooter>();
 
         if (cameraTarget != null)
             cameraTargetPosition = cameraTarget.localPosition;
@@ -73,8 +80,16 @@ public class PlayerController : MonoBehaviour
 
         if (spriteRenderer != null)
         {
-            if (move > 0) spriteRenderer.flipX = false;
-            else if (move < 0) spriteRenderer.flipX = true;
+            if (move > 0)
+            {
+                spriteRenderer.flipX = false;
+                shooter?.SetFacing(true);
+            }
+            else if (move < 0)
+            {
+                spriteRenderer.flipX = true;
+                shooter?.SetFacing(false);
+            }
         }
 
         if (!takingDamage)
@@ -96,8 +111,6 @@ public class PlayerController : MonoBehaviour
         {
             coyoteTimeCounter = coyoteTime;
 
-            // Só reseta o jumpCount quando ACABOU de pousar
-            // evita resetar enquanto caminha na borda
             if (!wasGrounded || jumpCount > 1)
                 jumpCount = 0;
         }
@@ -105,8 +118,6 @@ public class PlayerController : MonoBehaviour
         {
             coyoteTimeCounter -= Time.deltaTime;
 
-            // Saiu do chão sem pular — conta como primeiro pulo gasto
-            // para não ganhar pulo extra ao cair de plataforma
             if (wasGrounded && jumpCount == 0)
                 jumpCount = 1;
         }
@@ -116,14 +127,12 @@ public class PlayerController : MonoBehaviour
     {
         if (!Input.GetKeyDown(KeyCode.Space)) return;
 
-        // Primeiro pulo — chão ou coyote time
         if (coyoteTimeCounter > 0f && jumpCount <= 1)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, firstJumpForce);
             jumpCount = 1;
             coyoteTimeCounter = 0f;
         }
-        // Double jump
         else if (jumpCount == 1)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, secondJumpForce);
@@ -170,6 +179,9 @@ public class PlayerController : MonoBehaviour
         );
     }
 
+    // ──────────────────────────────────────
+    // Dano com knockback e piscar
+    // ──────────────────────────────────────
     public void TakeDamage(int damage, Transform enemy)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
@@ -177,6 +189,8 @@ public class PlayerController : MonoBehaviour
             heart.vida -= damage;
 
         takingDamage = true;
+
+        TriggerBlink();
 
         float direction = transform.position.x > enemy.position.x ? 1f : -1f;
         Vector2 knockbackDirection = new Vector2(direction, 1f).normalized;
@@ -187,6 +201,7 @@ public class PlayerController : MonoBehaviour
         Invoke(nameof(StopTakingDamage), 0.3f);
     }
 
+    // Sobrecarga sem knockback
     public void TakeDamage(int damage)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
@@ -199,6 +214,32 @@ public class PlayerController : MonoBehaviour
     private void StopTakingDamage()
     {
         takingDamage = false;
+    }
+
+    // ──────────────────────────────────────
+    // Piscar ao tomar dano
+    // ──────────────────────────────────────
+    private void TriggerBlink()
+    {
+        StopCoroutine(nameof(BlinkCoroutine));
+        StartCoroutine(BlinkCoroutine());
+    }
+
+    private IEnumerator BlinkCoroutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < blinkDuration)
+        {
+            if (spriteRenderer != null)
+                spriteRenderer.enabled = !spriteRenderer.enabled;
+
+            yield return new WaitForSeconds(blinkInterval);
+            elapsed += blinkInterval;
+        }
+
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = true;
     }
 
     private void OnDrawGizmosSelected()
