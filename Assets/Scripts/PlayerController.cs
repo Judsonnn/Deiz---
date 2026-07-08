@@ -47,19 +47,31 @@ public class PlayerController : MonoBehaviour
     private Vector3 cameraTargetPosition;
     private PlayerShooter shooter;
 
-    private float coyoteTimeCounter;
     public float coyoteTime = 0.1f;
-    private PlayerShooter shooter;
+    private float coyoteTimeCounter;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = normalGravity;
         transform.localScale = Vector3.one;
-        shooter = GetComponent<PlayerShooter>();  // << adiciona
+        shooter = GetComponent<PlayerShooter>();
 
         if (cameraTarget != null)
             cameraTargetPosition = cameraTarget.localPosition;
+    }
+
+    void Update()
+    {
+        HandleMovement();
+        HandleGroundCheck();
+        HandleJump();
+        HandleCameraLookAhead();
+    }
+
+    void FixedUpdate()
+    {
+        HandleGravity();
     }
 
     private void HandleMovement()
@@ -71,12 +83,12 @@ public class PlayerController : MonoBehaviour
             if (move > 0)
             {
                 spriteRenderer.flipX = false;
-                shooter?.SetFacing(true);   // << adiciona
+                shooter?.SetFacing(true);
             }
             else if (move < 0)
             {
                 spriteRenderer.flipX = true;
-                shooter?.SetFacing(false);  // << adiciona
+                shooter?.SetFacing(false);
             }
         }
 
@@ -167,9 +179,6 @@ public class PlayerController : MonoBehaviour
         );
     }
 
-    // ──────────────────────────────────────
-    // Dano com knockback e piscar
-    // ──────────────────────────────────────
     public void TakeDamage(int damage, Transform enemy)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
@@ -177,7 +186,6 @@ public class PlayerController : MonoBehaviour
             heart.vida -= damage;
 
         takingDamage = true;
-
         TriggerBlink();
 
         float direction = transform.position.x > enemy.position.x ? 1f : -1f;
@@ -189,7 +197,6 @@ public class PlayerController : MonoBehaviour
         Invoke(nameof(StopTakingDamage), 0.3f);
     }
 
-    // Sobrecarga sem knockback
     public void TakeDamage(int damage)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
@@ -204,9 +211,6 @@ public class PlayerController : MonoBehaviour
         takingDamage = false;
     }
 
-    // ──────────────────────────────────────
-    // Piscar ao tomar dano
-    // ──────────────────────────────────────
     private void TriggerBlink()
     {
         StopCoroutine(nameof(BlinkCoroutine));
