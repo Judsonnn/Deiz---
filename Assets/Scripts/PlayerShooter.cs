@@ -38,6 +38,8 @@ public class PlayerShooter : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0))
             Shoot();
+        if (Input.GetKeyDown(KeyCode.L) || Input.GetMouseButtonDown(0))
+            Shoot();
     }
 
     private void Shoot()

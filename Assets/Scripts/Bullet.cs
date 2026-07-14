@@ -17,8 +17,10 @@ public class Bullet : MonoBehaviour
         this.damage = damage;
 
         // Vira o sprite do tiro conforme direção
-        if (direction < 0)
-            transform.localScale = new Vector3(-1, 1, 1);
+        // Depois — usa flipX igual ao player, sem mexer no scale
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null)
+            sr.flipX = direction < 0;
 
         Destroy(gameObject, lifetime);
     }
