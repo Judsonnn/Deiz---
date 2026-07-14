@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class PlayerShooter : MonoBehaviour
 {
@@ -12,18 +13,29 @@ public class PlayerShooter : MonoBehaviour
     [Header("Superaquecimento")]
     public float maxHeat = 100f;
     public float heatPerShot = 20f;
-    public float cooldownRate = 15f;
-    public float overheatCooldown = 2f;
+    public float cooldownRate = 30f;     // << esfria mais rápido
+    public float overheatCooldown = 8f;  // << 8 segundos travada
 
     [Header("UI")]
     public Image heatBarFill;
     public Color normalColor = Color.cyan;
     public Color hotColor = Color.red;
 
+    [Header("Fogo")]
+    public GameObject fireIcon;          // imagem do fogo na ponta da barra
+    public float fireBlinkInterval = 0.15f;
+
     private float currentHeat = 0f;
     private bool isOverheated = false;
     private float overheatTimer = 0f;
     private bool facingRight = true;
+    private Coroutine blinkCoroutine;
+
+    void Start()
+    {
+        if (fireIcon != null)
+            fireIcon.SetActive(false);
+    }
 
     void Update()
     {
@@ -37,8 +49,6 @@ public class PlayerShooter : MonoBehaviour
         if (isOverheated) return;
 
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0))
-            Shoot();
-        if (Input.GetKeyDown(KeyCode.L) || Input.GetMouseButtonDown(0))
             Shoot();
     }
 
@@ -65,18 +75,41 @@ public class PlayerShooter : MonoBehaviour
     {
         isOverheated = true;
         overheatTimer = overheatCooldown;
+
+        // Ativa o fogo piscando
+        if (fireIcon != null)
+        {
+            fireIcon.SetActive(true);
+            if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
+            blinkCoroutine = StartCoroutine(BlinkFireIcon());
+        }
+    }
+
+    private IEnumerator BlinkFireIcon()
+    {
+        while (isOverheated)
+        {
+            if (fireIcon != null)
+                fireIcon.SetActive(!fireIcon.activeSelf);
+            yield return new WaitForSeconds(fireBlinkInterval);
+        }
+
+        // Quando terminar esconde o fogo
+        if (fireIcon != null)
+            fireIcon.SetActive(false);
     }
 
     private void HandleHeat()
     {
         if (isOverheated)
         {
-            overheatTimer -= Time.deltaTime;
+            // Desce gradualmente durante o overheat
+            currentHeat -= (maxHeat / overheatCooldown) * Time.deltaTime;
 
-            if (overheatTimer <= 0f)
+            if (currentHeat <= 0f)
             {
-                isOverheated = false;
                 currentHeat = 0f;
+                isOverheated = false;
             }
         }
         else
@@ -91,7 +124,11 @@ public class PlayerShooter : MonoBehaviour
         if (heatBarFill == null) return;
 
         float ratio = currentHeat / maxHeat;
+
+        // Atualiza o fill
         heatBarFill.fillAmount = ratio;
+
+        // Muda a cor gradualmente de azul para vermelho
         heatBarFill.color = Color.Lerp(normalColor, hotColor, ratio);
     }
 
