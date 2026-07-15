@@ -12,12 +12,14 @@ public class EnemyHealth : MonoBehaviour
 
     [Header("Knockback ao tomar dano")]
     public float knockbackForce = 5f;
+    public bool canBeKnockedBack = true;
     private Rigidbody2D rb;
 
     [Header("Piscar ao tomar dano")]
     public float blinkDuration = 0.4f;
     public float blinkInterval = 0.08f;
     private SpriteRenderer spriteRenderer;
+    private Coroutine blinkCoroutine; // << controla só o piscar
 
     void Start()
     {
@@ -39,17 +41,16 @@ public class EnemyHealth : MonoBehaviour
             healthBar.UpdateBar(currentHealth, maxHealth);
         }
 
-        // Knockback
-        if (rb != null && attacker != null)
+        if (canBeKnockedBack && rb != null && attacker != null)
         {
             float direction = transform.position.x > attacker.position.x ? 1f : -1f;
             rb.linearVelocity = Vector2.zero;
             rb.AddForce(new Vector2(direction, 0.3f).normalized * knockbackForce, ForceMode2D.Impulse);
         }
 
-        // Piscar
-        StopAllCoroutines();
-        StartCoroutine(BlinkCoroutine());
+        // Para só a coroutine do piscar, não todas
+        if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
+        blinkCoroutine = StartCoroutine(BlinkCoroutine());
 
         if (currentHealth <= 0)
             Die();
