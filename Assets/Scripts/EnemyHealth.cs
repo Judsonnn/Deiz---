@@ -1,7 +1,5 @@
-// ─────────────────────────────────────────
-// EnemyHealth.cs — coloca em todo inimigo
-// ─────────────────────────────────────────
 using UnityEngine;
+using System.Collections;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -16,36 +14,62 @@ public class EnemyHealth : MonoBehaviour
     public float knockbackForce = 5f;
     private Rigidbody2D rb;
 
+    [Header("Piscar ao tomar dano")]
+    public float blinkDuration = 0.4f;
+    public float blinkInterval = 0.08f;
+    private SpriteRenderer spriteRenderer;
+
     void Start()
     {
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
         if (healthBar != null)
-            healthBar.Hide(); // começa escondida
+            healthBar.Hide();
     }
 
     public void TakeDamage(int damage, Transform attacker)
     {
         currentHealth -= damage;
 
-        // Mostra a barra no primeiro dano e atualiza
         if (healthBar != null)
         {
             healthBar.Show();
             healthBar.UpdateBar(currentHealth, maxHealth);
         }
 
-        // Knockback ao tomar dano — evita deslizar
+        // Knockback
         if (rb != null && attacker != null)
         {
             float direction = transform.position.x > attacker.position.x ? 1f : -1f;
             rb.linearVelocity = Vector2.zero;
-            rb.AddForce(new Vector2(direction, 0.5f).normalized * knockbackForce, ForceMode2D.Impulse);
+            rb.AddForce(new Vector2(direction, 0.3f).normalized * knockbackForce, ForceMode2D.Impulse);
         }
+
+        // Piscar
+        StopAllCoroutines();
+        StartCoroutine(BlinkCoroutine());
 
         if (currentHealth <= 0)
             Die();
+    }
+
+    private IEnumerator BlinkCoroutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < blinkDuration)
+        {
+            if (spriteRenderer != null)
+                spriteRenderer.enabled = !spriteRenderer.enabled;
+
+            yield return new WaitForSeconds(blinkInterval);
+            elapsed += blinkInterval;
+        }
+
+        if (spriteRenderer != null)
+            spriteRenderer.enabled = true;
     }
 
     private void Die()

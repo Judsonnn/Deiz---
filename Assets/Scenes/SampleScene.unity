@@ -1145,8 +1145,8 @@ Transform:
   m_GameObject: {fileID: 118598126}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.63615, y: 0.284745, z: 1}
+  m_LocalPosition: {x: 0.001, y: 0.0068, z: 0}
+  m_LocalScale: {x: 4.9480367, y: 0.7973484, z: 2.502157}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 447434927}
@@ -3930,7 +3930,7 @@ Transform:
   m_GameObject: {fileID: 424559597}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 13.12, y: 1.41, z: 0}
+  m_LocalPosition: {x: 12.67, y: 1.3, z: 0}
   m_LocalScale: {x: 1, y: 1.1802, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3951,7 +3951,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 100c479955e12df42a86ff908d13fd5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
-  speed: 4.5
+  speed: 4
   damage: 1
   damageCooldown: 1
   groundCheck: {fileID: 726620630}
@@ -8339,7 +8339,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.6361501, y: 0.284745, z: 1}
+  m_LocalScale: {x: 4.95629, y: 0.8625607, z: 3.029239}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 447434927}

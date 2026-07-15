@@ -13,8 +13,8 @@ public class PlayerShooter : MonoBehaviour
     [Header("Superaquecimento")]
     public float maxHeat = 100f;
     public float heatPerShot = 20f;
-    public float cooldownRate = 30f;     // << esfria mais rápido
-    public float overheatCooldown = 8f;  // << 8 segundos travada
+    public float cooldownRate = 5f;
+    public float overheatCooldown = 8f;
 
     [Header("UI")]
     public Image heatBarFill;
@@ -22,19 +22,18 @@ public class PlayerShooter : MonoBehaviour
     public Color hotColor = Color.red;
 
     [Header("Fogo")]
-    public GameObject fireIcon;          // imagem do fogo na ponta da barra
+    public GameObject fireIcon;
     public float fireBlinkInterval = 0.15f;
 
     private float currentHeat = 0f;
     private bool isOverheated = false;
-    private float overheatTimer = 0f;
     private bool facingRight = true;
     private Coroutine blinkCoroutine;
 
     void Start()
     {
         if (fireIcon != null)
-            fireIcon.SetActive(false);
+            fireIcon.SetActive(true); // sempre visível
     }
 
     void Update()
@@ -74,12 +73,10 @@ public class PlayerShooter : MonoBehaviour
     private void TriggerOverheat()
     {
         isOverheated = true;
-        overheatTimer = overheatCooldown;
 
-        // Ativa o fogo piscando
+        // Começa a piscar ao encher
         if (fireIcon != null)
         {
-            fireIcon.SetActive(true);
             if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
             blinkCoroutine = StartCoroutine(BlinkFireIcon());
         }
@@ -87,16 +84,17 @@ public class PlayerShooter : MonoBehaviour
 
     private IEnumerator BlinkFireIcon()
     {
-        while (isOverheated)
+        // Pisca enquanto a barra não esvaziar
+        while (currentHeat > 0f)
         {
             if (fireIcon != null)
                 fireIcon.SetActive(!fireIcon.activeSelf);
             yield return new WaitForSeconds(fireBlinkInterval);
         }
 
-        // Quando terminar esconde o fogo
+        // Para de piscar quando esvazia — volta visível normal
         if (fireIcon != null)
-            fireIcon.SetActive(false);
+            fireIcon.SetActive(true);
     }
 
     private void HandleHeat()
@@ -124,11 +122,7 @@ public class PlayerShooter : MonoBehaviour
         if (heatBarFill == null) return;
 
         float ratio = currentHeat / maxHeat;
-
-        // Atualiza o fill
         heatBarFill.fillAmount = ratio;
-
-        // Muda a cor gradualmente de azul para vermelho
         heatBarFill.color = Color.Lerp(normalColor, hotColor, ratio);
     }
 
