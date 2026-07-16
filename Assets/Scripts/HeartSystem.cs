@@ -62,7 +62,7 @@ public class HeartSystem : MonoBehaviour
     
     void DeadState()
     {
-        Debug.Log("vida atual" + vida);
+      //  Debug.Log("vida atual" + vida);
         {
             if (vida < 0)
             {

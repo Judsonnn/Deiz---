@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class FrogEnemyController : MonoBehaviour
 {
@@ -14,8 +15,8 @@ public class FrogEnemyController : MonoBehaviour
 
     [Header("Attack")]
     public float chargeTime = 1.5f;
-    public float jumpForce = 14f;
-    public float jumpHorizontalSpeed = 6f;
+    public float jumpForce = 18f;
+    public float jumpHorizontalSpeed = 10f;
     public float landingCooldown = 0.8f;
     public float areaRadius = 2.5f;
     public int damage = 1;
@@ -36,6 +37,7 @@ public class FrogEnemyController : MonoBehaviour
     private FrogState currentState = FrogState.Patrolling;
     private Transform player;
     private Rigidbody2D rb;
+    private EnemyHealth enemyHealth;
     private Vector2 patrolCenter;
     private Vector2 currentPatrolTarget;
     private Vector2 lockedJumpTarget;
@@ -44,10 +46,13 @@ public class FrogEnemyController : MonoBehaviour
     private float cooldownTimer;
     private float patrolWaitTimer;
 
-    // FIX 1 — controla se já subiu para detectar pouso corretamente
     private bool hasReachedPeak = false;
+    private float jumpGroundCheckDelay = 0.3f;
+    private float jumpGroundCheckTimer;
 
-    // FIX 2 — ignora colisão com o player durante o pulo
+    private bool shouldJump = false;
+    private float jumpDirection = 1f;
+
     private Collider2D myCollider;
     private Collider2D playerCollider;
 
@@ -55,6 +60,7 @@ public class FrogEnemyController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         myCollider = GetComponent<Collider2D>();
+        enemyHealth = GetComponent<EnemyHealth>();
         patrolCenter = transform.position;
         PickNewPatrolPoint();
 
@@ -75,12 +81,26 @@ public class FrogEnemyController : MonoBehaviour
         {
             case FrogState.Patrolling: HandlePatrol();  break;
             case FrogState.Charging:  HandleCharging(); break;
-            case FrogState.Jumping:   HandleJumping();  break;
             case FrogState.Landing:   HandleLanding();  break;
             case FrogState.Cooldown:  HandleCooldown(); break;
         }
 
         HandleFlip();
+    }
+
+    void FixedUpdate()
+    {
+        // Aplica a força no FixedUpdate
+        if (shouldJump)
+        {
+            shouldJump = false;
+            rb.linearVelocity = Vector2.zero;
+            rb.AddForce(new Vector2(jumpDirection * jumpHorizontalSpeed, jumpForce), ForceMode2D.Impulse);
+            Debug.Log("Força aplicada: " + rb.linearVelocity);
+        }
+
+        if (currentState == FrogState.Jumping)
+            HandleJumping();
     }
 
     private void HandlePatrol()
@@ -114,7 +134,6 @@ public class FrogEnemyController : MonoBehaviour
         currentState = FrogState.Charging;
         chargeTimer = chargeTime;
 
-        // FIX 3 — para completamente ao carregar
         rb.linearVelocity = Vector2.zero;
         rb.bodyType = RigidbodyType2D.Kinematic;
 
@@ -137,9 +156,11 @@ public class FrogEnemyController : MonoBehaviour
         }
 
         chargeTimer -= Time.deltaTime;
+        Debug.Log("Charging... timer: " + chargeTimer);
 
         if (chargeTimer <= 0f)
         {
+            Debug.Log("ExecuteJump sendo chamado!");
             if (player != null)
                 lockedJumpTarget = player.position;
 
@@ -151,36 +172,30 @@ public class FrogEnemyController : MonoBehaviour
     {
         currentState = FrogState.Jumping;
         hasReachedPeak = false;
+        jumpGroundCheckTimer = jumpGroundCheckDelay;
 
-        // FIX 4 — volta para Dynamic ao pular
         rb.bodyType = RigidbodyType2D.Dynamic;
-
-        // FIX 5 — ignora colisão com player durante o pulo
-        if (myCollider != null && playerCollider != null)
-            Physics2D.IgnoreCollision(myCollider, playerCollider, true);
+        rb.gravityScale = 2f;
 
         if (areaIndicator != null)
             areaIndicator.SetActive(false);
 
-        float direction = lockedJumpTarget.x > transform.position.x ? 1f : -1f;
-        rb.linearVelocity = new Vector2(direction * jumpHorizontalSpeed, jumpForce);
+        jumpDirection = lockedJumpTarget.x > transform.position.x ? 1f : -1f;
+        shouldJump = true;
     }
 
     private void HandleJumping()
     {
-        // Detecta o pico do pulo
+        jumpGroundCheckTimer -= Time.deltaTime;
+
         if (rb.linearVelocity.y < 0)
             hasReachedPeak = true;
 
-        // Só pousa após atingir o pico
-        if (hasReachedPeak && IsGrounded())
+        Debug.Log("Y velocity: " + rb.linearVelocity.y + " | hasReachedPeak: " + hasReachedPeak + " | isGrounded: " + IsGrounded());
+
+        if (jumpGroundCheckTimer <= 0f && hasReachedPeak && IsGrounded())
         {
             rb.linearVelocity = Vector2.zero;
-
-            // Restaura colisão com player ao pousar
-            if (myCollider != null && playerCollider != null)
-                Physics2D.IgnoreCollision(myCollider, playerCollider, false);
-
             OnLand();
             currentState = FrogState.Landing;
         }
@@ -188,12 +203,15 @@ public class FrogEnemyController : MonoBehaviour
 
     private void OnLand()
     {
-        // FIX 6 — usa OverlapCircleAll com posição correta
+        Debug.Log("Pousou! Raio: " + areaRadius + " Layer: " + playerLayer.value);
+
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             transform.position,
             areaRadius,
             playerLayer
         );
+
+        Debug.Log("Hits: " + hits.Length);
 
         foreach (Collider2D hit in hits)
         {
@@ -206,7 +224,7 @@ public class FrogEnemyController : MonoBehaviour
             StartCoroutine(ShowImpactEffect());
     }
 
-    private System.Collections.IEnumerator ShowImpactEffect()
+    private IEnumerator ShowImpactEffect()
     {
         areaIndicator.SetActive(true);
         areaIndicator.transform.position = new Vector3(
@@ -247,8 +265,10 @@ public class FrogEnemyController : MonoBehaviour
 
         if (cooldownTimer <= 0f)
         {
-            if (player != null &&
-                Vector2.Distance(transform.position, player.position) <= detectionRadius)
+            float dist = Vector2.Distance(transform.position, player.position);
+            Debug.Log("Distância: " + dist + " | Radius: " + detectionRadius);
+
+            if (player != null && dist <= detectionRadius)
                 EnterCharging();
             else
             {
@@ -256,6 +276,16 @@ public class FrogEnemyController : MonoBehaviour
                 PickNewPatrolPoint();
             }
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (currentState != FrogState.Jumping) return;
+        if (!collision.gameObject.CompareTag("Player")) return;
+
+        PlayerController pc = collision.gameObject.GetComponent<PlayerController>();
+        if (pc != null)
+            pc.TakeDamage(damage, transform);
     }
 
     private void MoveTowards(Vector2 target, float speed)
@@ -269,11 +299,13 @@ public class FrogEnemyController : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics2D.OverlapCircle(
+        bool grounded = Physics2D.OverlapCircle(
             groundCheck.position,
             groundCheckRadius,
             groundLayer
         );
+        Debug.Log("GroundCheck pos: " + groundCheck.position + " | grounded: " + grounded);
+        return grounded;
     }
 
     private void HandleFlip()
