@@ -203,21 +203,25 @@ public class FrogEnemyController : MonoBehaviour
 
     private void OnLand()
     {
-        Debug.Log("Pousou! Raio: " + areaRadius + " Layer: " + playerLayer.value);
-
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             transform.position,
             areaRadius,
             playerLayer
         );
 
-        Debug.Log("Hits: " + hits.Length);
-
         foreach (Collider2D hit in hits)
         {
-            PlayerController pc = hit.GetComponent<PlayerController>();
+            // Busca o PlayerController no objeto ou em qualquer pai
+            PlayerController pc = hit.GetComponentInParent<PlayerController>();
             if (pc != null)
+            {
                 pc.TakeDamage(damage, transform);
+                Debug.Log("Dano aplicado!");
+            }
+            else
+            {
+                Debug.Log("PlayerController não encontrado em: " + hit.gameObject.name);
+            }
         }
 
         if (areaIndicator != null)
