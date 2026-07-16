@@ -146,27 +146,38 @@ public class FrogEnemyController : MonoBehaviour
 
     private void HandleCharging()
     {
-        if (areaIndicator != null && player != null)
-        {
-            areaIndicator.transform.position = new Vector3(
-                player.position.x,
-                player.position.y - 0.5f,
-                areaIndicator.transform.position.z
-            );
-        }
-
         chargeTimer -= Time.deltaTime;
-        Debug.Log("Charging... timer: " + chargeTimer);
+
+        if (areaIndicator != null)
+        {
+            // Raio para achar o chão abaixo do SAPO
+            RaycastHit2D hit = Physics2D.Raycast(
+                transform.position,
+                Vector2.down,
+                20f,
+                groundLayer
+            );
+
+            if (hit.collider != null)
+            {
+                areaIndicator.SetActive(true);
+                areaIndicator.transform.position = new Vector3(
+                    transform.position.x,
+                    hit.point.y + 0.05f,
+                    areaIndicator.transform.position.z
+                );
+                areaIndicator.transform.localScale = new Vector3(areaRadius * 2f, 0.3f, 1f);
+            }
+        }
 
         if (chargeTimer <= 0f)
         {
-            Debug.Log("ExecuteJump sendo chamado!");
             if (player != null)
                 lockedJumpTarget = player.position;
-
             ExecuteJump();
         }
     }
+
 
     private void ExecuteJump()
     {
@@ -191,7 +202,27 @@ public class FrogEnemyController : MonoBehaviour
         if (rb.linearVelocity.y < 0)
             hasReachedPeak = true;
 
-        Debug.Log("Y velocity: " + rb.linearVelocity.y + " | hasReachedPeak: " + hasReachedPeak + " | isGrounded: " + IsGrounded());
+        // Atualiza posição da área no chão abaixo do sapo durante a queda
+        if (areaIndicator != null && hasReachedPeak)
+        {
+            RaycastHit2D hit = Physics2D.Raycast(
+                transform.position,
+                Vector2.down,
+                20f,
+                groundLayer
+            );
+
+            if (hit.collider != null)
+            {
+                areaIndicator.SetActive(true);
+                areaIndicator.transform.position = new Vector3(
+                    transform.position.x,
+                    hit.point.y + 0.05f,
+                    areaIndicator.transform.position.z
+                );
+                areaIndicator.transform.localScale = new Vector3(areaRadius * 2f, 0.3f, 1f);
+            }
+        }
 
         if (jumpGroundCheckTimer <= 0f && hasReachedPeak && IsGrounded())
         {
