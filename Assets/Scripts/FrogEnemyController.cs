@@ -25,6 +25,8 @@ public class FrogEnemyController : MonoBehaviour
     [Header("Indicator")]
     public GameObject areaIndicator;
     public float indicatorFadeDuration = 0.5f;
+    [Tooltip("Altura do indicador no chão (mais fino = valor menor)")]
+    public float indicatorThickness = 0.12f;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -56,6 +58,11 @@ public class FrogEnemyController : MonoBehaviour
     private Collider2D myCollider;
     private Collider2D playerCollider;
 
+    // Cache do tamanho nativo do sprite do indicador, usado para calcular
+    // a escala correta (independente do tamanho da textura/pivot do sprite)
+    private SpriteRenderer areaIndicatorRenderer;
+    private Vector2 areaIndicatorNativeSize = Vector2.one;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -72,7 +79,16 @@ public class FrogEnemyController : MonoBehaviour
         }
 
         if (areaIndicator != null)
+        {
+            areaIndicatorRenderer = areaIndicator.GetComponent<SpriteRenderer>();
+            if (areaIndicatorRenderer != null && areaIndicatorRenderer.sprite != null)
+            {
+                // Tamanho do sprite em unidades do mundo com escala 1,1,1
+                areaIndicatorNativeSize = areaIndicatorRenderer.sprite.bounds.size;
+            }
+
             areaIndicator.SetActive(false);
+        }
     }
 
     void Update()
@@ -137,47 +153,26 @@ public class FrogEnemyController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.bodyType = RigidbodyType2D.Kinematic;
 
-        if (areaIndicator != null)
-        {
-            areaIndicator.SetActive(true);
-            areaIndicator.transform.localScale = Vector3.one * (areaRadius * 2f);
-        }
+        // Trava o alvo do pulo logo no início da carga, assim o indicador
+        // já nasce na posição correta (onde o dano vai acontecer de fato)
+        if (player != null)
+            lockedJumpTarget = player.position;
+
+        UpdateGroundIndicatorAt(lockedJumpTarget);
     }
 
     private void HandleCharging()
     {
         chargeTimer -= Time.deltaTime;
 
-        if (areaIndicator != null)
-        {
-            // Raio para achar o chão abaixo do SAPO
-            RaycastHit2D hit = Physics2D.Raycast(
-                transform.position,
-                Vector2.down,
-                20f,
-                groundLayer
-            );
-
-            if (hit.collider != null)
-            {
-                areaIndicator.SetActive(true);
-                areaIndicator.transform.position = new Vector3(
-                    transform.position.x,
-                    hit.point.y + 0.05f,
-                    areaIndicator.transform.position.z
-                );
-                areaIndicator.transform.localScale = new Vector3(areaRadius * 2f, 0.3f, 1f);
-            }
-        }
+        // Mantém o indicador fixo embaixo do alvo travado (não do sapo)
+        UpdateGroundIndicatorAt(lockedJumpTarget);
 
         if (chargeTimer <= 0f)
         {
-            if (player != null)
-                lockedJumpTarget = player.position;
             ExecuteJump();
         }
     }
-
 
     private void ExecuteJump()
     {
@@ -188,8 +183,9 @@ public class FrogEnemyController : MonoBehaviour
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.gravityScale = 2f;
 
-        if (areaIndicator != null)
-            areaIndicator.SetActive(false);
+        // Mantém o indicador visível já no instante em que o sapo sai do chão,
+        // em vez de esconder e só reaparecer no pico do pulo
+        UpdateGroundIndicatorAt(lockedJumpTarget);
 
         jumpDirection = lockedJumpTarget.x > transform.position.x ? 1f : -1f;
         shouldJump = true;
@@ -202,27 +198,9 @@ public class FrogEnemyController : MonoBehaviour
         if (rb.linearVelocity.y < 0)
             hasReachedPeak = true;
 
-        // Atualiza posição da área no chão abaixo do sapo durante a queda
-        if (areaIndicator != null && hasReachedPeak)
-        {
-            RaycastHit2D hit = Physics2D.Raycast(
-                transform.position,
-                Vector2.down,
-                20f,
-                groundLayer
-            );
-
-            if (hit.collider != null)
-            {
-                areaIndicator.SetActive(true);
-                areaIndicator.transform.position = new Vector3(
-                    transform.position.x,
-                    hit.point.y + 0.05f,
-                    areaIndicator.transform.position.z
-                );
-                areaIndicator.transform.localScale = new Vector3(areaRadius * 2f, 0.3f, 1f);
-            }
-        }
+        // Mantém a área atualizada durante toda a trajetória (subida e queda),
+        // não só depois do pico
+        UpdateGroundIndicatorAt(lockedJumpTarget);
 
         if (jumpGroundCheckTimer <= 0f && hasReachedPeak && IsGrounded())
         {
@@ -232,10 +210,49 @@ public class FrogEnemyController : MonoBehaviour
         }
     }
 
+    // Método único responsável por posicionar o indicador de área no chão,
+    // sempre usando o X do alvo travado (lockedJumpTarget), não a posição do sapo.
+    private void UpdateGroundIndicatorAt(Vector2 targetPos)
+    {
+        if (areaIndicator == null) return;
+
+        // Origem do raycast bem acima do alvo, garante que pega o chão
+        // mesmo que o sapo esteja mais alto ou mais baixo que o ponto de queda
+        Vector2 rayOrigin = new Vector2(targetPos.x, transform.position.y + 10f);
+        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 30f, groundLayer);
+
+        if (hit.collider != null)
+        {
+            areaIndicator.SetActive(true);
+
+            // Encosta quase no chão (bem rente, sem ficar dentro do chão)
+            areaIndicator.transform.position = new Vector3(
+                targetPos.x,
+                hit.point.y + 0.02f,
+                areaIndicator.transform.position.z
+            );
+
+            // Largura desejada = diâmetro real da área de dano (areaRadius * 2)
+            // Altura desejada = espessura fina configurável (indicatorThickness)
+            float desiredWidth = areaRadius * 2f;
+            float desiredHeight = indicatorThickness;
+
+            // Converte tamanho desejado (em unidades do mundo) em escala local,
+            // levando em conta o tamanho nativo do sprite. Isso garante que o
+            // indicador cubra EXATAMENTE a área de dano, não importa o sprite usado.
+            float scaleX = desiredWidth / Mathf.Max(areaIndicatorNativeSize.x, 0.0001f);
+            float scaleY = desiredHeight / Mathf.Max(areaIndicatorNativeSize.y, 0.0001f);
+
+            areaIndicator.transform.localScale = new Vector3(scaleX, scaleY, 1f);
+        }
+    }
+
     private void OnLand()
     {
+        // Usa o alvo travado, não a posição atual do sapo, para o dano
+        // bater exatamente onde o indicador mostrou
         Collider2D[] hits = Physics2D.OverlapCircleAll(
-            transform.position,
+            lockedJumpTarget,
             areaRadius,
             playerLayer
         );
@@ -263,8 +280,8 @@ public class FrogEnemyController : MonoBehaviour
     {
         areaIndicator.SetActive(true);
         areaIndicator.transform.position = new Vector3(
-            transform.position.x,
-            transform.position.y,
+            lockedJumpTarget.x,
+            lockedJumpTarget.y,
             areaIndicator.transform.position.z
         );
         areaIndicator.transform.localScale = Vector3.one * (areaRadius * 2f);
