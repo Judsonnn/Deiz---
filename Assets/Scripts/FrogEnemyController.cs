@@ -12,11 +12,14 @@ public class FrogEnemyController : MonoBehaviour
 
     [Header("Detection")]
     public float detectionRadius = 6f;
+    [Tooltip("Raio usado DEPOIS que ele já engajou pelo menos uma vez (deve ser maior que o detectionRadius, pra não desistir fácil)")]
+    public float chaseRadius = 9f;
 
     [Header("Attack")]
     public float chargeTime = 1.5f;
-    public float jumpForce = 18f;
-    public float jumpHorizontalSpeed = 10f;
+    public float jumpForce = 18f;           // Controla a ALTURA do pulo
+    public float jumpHorizontalSpeed = 10f; // Controla a DISTÂNCIA horizontal do pulo
+    public float jumpGravityScale = 2f;     // Gravidade durante o pulo (menor = pulo mais alto/lento)
     public float landingCooldown = 0.8f;
     public float areaRadius = 2.5f;
     public int damage = 1;
@@ -63,6 +66,12 @@ public class FrogEnemyController : MonoBehaviour
     private SpriteRenderer areaIndicatorRenderer;
     private Vector2 areaIndicatorNativeSize = Vector2.one;
 
+    // Posição/escala já calculadas e travadas para o indicador de chão
+    // (calculadas 1x quando o alvo é travado, evita "tremedeira" por recalcular todo frame)
+    private Vector3 lockedIndicatorPosition;
+    private Vector3 lockedIndicatorScale;
+    private bool indicatorLocked = false;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -86,6 +95,12 @@ public class FrogEnemyController : MonoBehaviour
                 // Tamanho do sprite em unidades do mundo com escala 1,1,1
                 areaIndicatorNativeSize = areaIndicatorRenderer.sprite.bounds.size;
             }
+
+            // Importante: se o indicador for filho do sapo na hierarquia, o
+            // movimento físico do sapo (pulo) arrasta o filho entre um frame
+            // e outro, mesmo travando a posição mundial no script. Desvincular
+            // aqui garante que ele fique 100% parado, independente do sapo.
+            areaIndicator.transform.SetParent(null);
 
             areaIndicator.SetActive(false);
         }
@@ -153,20 +168,24 @@ public class FrogEnemyController : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.bodyType = RigidbodyType2D.Kinematic;
 
-        // Trava o alvo do pulo logo no início da carga, assim o indicador
-        // já nasce na posição correta (onde o dano vai acontecer de fato)
+        // Trava o alvo do pulo logo no início da carga
         if (player != null)
             lockedJumpTarget = player.position;
 
-        UpdateGroundIndicatorAt(lockedJumpTarget);
+        // Calcula a posição/escala do indicador UMA ÚNICA VEZ aqui.
+        // Como o alvo já está travado, não precisa (e não deve) recalcular
+        // todo frame depois disso — é isso que causava a "tremedeira".
+        indicatorLocked = false;
+        LockIndicatorAt(lockedJumpTarget);
     }
 
     private void HandleCharging()
     {
         chargeTimer -= Time.deltaTime;
 
-        // Mantém o indicador fixo embaixo do alvo travado (não do sapo)
-        UpdateGroundIndicatorAt(lockedJumpTarget);
+        // Não recalcula mais aqui — o indicador já está travado desde EnterCharging.
+        // Só reaplica os valores travados (sem raycast), caso algo tenha mexido nele.
+        ApplyLockedIndicator();
 
         if (chargeTimer <= 0f)
         {
@@ -181,11 +200,11 @@ public class FrogEnemyController : MonoBehaviour
         jumpGroundCheckTimer = jumpGroundCheckDelay;
 
         rb.bodyType = RigidbodyType2D.Dynamic;
-        rb.gravityScale = 2f;
+        rb.gravityScale = jumpGravityScale;
 
-        // Mantém o indicador visível já no instante em que o sapo sai do chão,
-        // em vez de esconder e só reaparecer no pico do pulo
-        UpdateGroundIndicatorAt(lockedJumpTarget);
+        // Reaplica o valor JÁ TRAVADO (sem recalcular/raycast de novo),
+        // assim o indicador continua visível e parado desde a saída do chão
+        ApplyLockedIndicator();
 
         jumpDirection = lockedJumpTarget.x > transform.position.x ? 1f : -1f;
         shouldJump = true;
@@ -198,9 +217,9 @@ public class FrogEnemyController : MonoBehaviour
         if (rb.linearVelocity.y < 0)
             hasReachedPeak = true;
 
-        // Mantém a área atualizada durante toda a trajetória (subida e queda),
-        // não só depois do pico
-        UpdateGroundIndicatorAt(lockedJumpTarget);
+        // Reaplica o valor JÁ TRAVADO (sem raycast a cada frame) — mantém
+        // o indicador 100% parado durante toda a trajetória do pulo
+        ApplyLockedIndicator();
 
         if (jumpGroundCheckTimer <= 0f && hasReachedPeak && IsGrounded())
         {
@@ -210,41 +229,45 @@ public class FrogEnemyController : MonoBehaviour
         }
     }
 
-    // Método único responsável por posicionar o indicador de área no chão,
-    // sempre usando o X do alvo travado (lockedJumpTarget), não a posição do sapo.
-    private void UpdateGroundIndicatorAt(Vector2 targetPos)
+    // Calcula a posição e escala do indicador de chão UMA VEZ (com raycast)
+    // e trava esses valores em cache. Chamado só ao entrar em Charging.
+    private void LockIndicatorAt(Vector2 targetPos)
     {
         if (areaIndicator == null) return;
 
-        // Origem do raycast bem acima do alvo, garante que pega o chão
-        // mesmo que o sapo esteja mais alto ou mais baixo que o ponto de queda
         Vector2 rayOrigin = new Vector2(targetPos.x, transform.position.y + 10f);
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 30f, groundLayer);
 
-        if (hit.collider != null)
-        {
-            areaIndicator.SetActive(true);
+        if (hit.collider == null) return;
 
-            // Encosta quase no chão (bem rente, sem ficar dentro do chão)
-            areaIndicator.transform.position = new Vector3(
-                targetPos.x,
-                hit.point.y + 0.02f,
-                areaIndicator.transform.position.z
-            );
+        // Largura = diâmetro real da área de dano; altura = espessura fina configurável
+        float desiredWidth = areaRadius * 2f;
+        float desiredHeight = indicatorThickness;
 
-            // Largura desejada = diâmetro real da área de dano (areaRadius * 2)
-            // Altura desejada = espessura fina configurável (indicatorThickness)
-            float desiredWidth = areaRadius * 2f;
-            float desiredHeight = indicatorThickness;
+        float scaleX = desiredWidth / Mathf.Max(areaIndicatorNativeSize.x, 0.0001f);
+        float scaleY = desiredHeight / Mathf.Max(areaIndicatorNativeSize.y, 0.0001f);
 
-            // Converte tamanho desejado (em unidades do mundo) em escala local,
-            // levando em conta o tamanho nativo do sprite. Isso garante que o
-            // indicador cubra EXATAMENTE a área de dano, não importa o sprite usado.
-            float scaleX = desiredWidth / Mathf.Max(areaIndicatorNativeSize.x, 0.0001f);
-            float scaleY = desiredHeight / Mathf.Max(areaIndicatorNativeSize.y, 0.0001f);
+        lockedIndicatorPosition = new Vector3(
+            targetPos.x,
+            hit.point.y + 0.02f,
+            areaIndicator.transform.position.z
+        );
+        lockedIndicatorScale = new Vector3(scaleX, scaleY, 1f);
+        indicatorLocked = true;
 
-            areaIndicator.transform.localScale = new Vector3(scaleX, scaleY, 1f);
-        }
+        ApplyLockedIndicator();
+    }
+
+    // Só reaplica os valores já travados (posição/escala), sem raycast nenhum.
+    // Isso garante que o indicador fique 100% parado até a próxima vez que
+    // for travado de novo (próxima carga).
+    private void ApplyLockedIndicator()
+    {
+        if (areaIndicator == null || !indicatorLocked) return;
+
+        areaIndicator.SetActive(true);
+        areaIndicator.transform.position = lockedIndicatorPosition;
+        areaIndicator.transform.localScale = lockedIndicatorScale;
     }
 
     private void OnLand()
@@ -278,15 +301,11 @@ public class FrogEnemyController : MonoBehaviour
 
     private IEnumerator ShowImpactEffect()
     {
-        areaIndicator.SetActive(true);
-        areaIndicator.transform.position = new Vector3(
-            lockedJumpTarget.x,
-            lockedJumpTarget.y,
-            areaIndicator.transform.position.z
-        );
-        areaIndicator.transform.localScale = Vector3.one * (areaRadius * 2f);
-
-        SpriteRenderer indicator = areaIndicator.GetComponent<SpriteRenderer>();
+        // Não redimensiona mais nada aqui — só deixa a própria barra (que já
+        // está na posição/escala certa, travada desde o pulo) sumir com fade.
+        // Isso evita o "quadrado" grande que aparecia ao redimensionar pro
+        // tamanho cheio da área de dano.
+        SpriteRenderer indicator = areaIndicatorRenderer;
         float elapsed = 0f;
         Color startColor = new Color(1f, 0f, 0f, 0.6f);
         Color endColor = new Color(1f, 0f, 0f, 0f);
@@ -299,6 +318,7 @@ public class FrogEnemyController : MonoBehaviour
             yield return null;
         }
 
+        indicatorLocked = false;
         areaIndicator.SetActive(false);
 
         if (indicator != null)
@@ -318,9 +338,12 @@ public class FrogEnemyController : MonoBehaviour
         if (cooldownTimer <= 0f)
         {
             float dist = Vector2.Distance(transform.position, player.position);
-            Debug.Log("Distância: " + dist + " | Radius: " + detectionRadius);
+            Debug.Log("Distância: " + dist + " | ChaseRadius: " + chaseRadius);
 
-            if (player != null && dist <= detectionRadius)
+            // Usa o chaseRadius (maior) aqui, e não o detectionRadius —
+            // depois que já engajou uma vez, ele "persegue" com mais tolerância
+            // e não desiste só porque você deu alguns passos pra trás.
+            if (player != null && dist <= chaseRadius)
                 EnterCharging();
             else
             {
@@ -379,6 +402,12 @@ public class FrogEnemyController : MonoBehaviour
         Gizmos.DrawWireSphere(
             Application.isPlaying ? (Vector3)patrolCenter : transform.position,
             detectionRadius
+        );
+
+        Gizmos.color = new Color(1f, 0.5f, 0f); // laranja
+        Gizmos.DrawWireSphere(
+            Application.isPlaying ? (Vector3)patrolCenter : transform.position,
+            chaseRadius
         );
 
         Gizmos.color = Color.cyan;
