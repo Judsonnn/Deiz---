@@ -14,6 +14,11 @@ public class HeartSystem : MonoBehaviour
     public Sprite cheio;
 
     public Sprite vazio;
+
+    // Garante que a lógica de morte (tela de morte, destruir o player) só
+    // rode UMA VEZ, mesmo o Update() chamando DeadState() todo frame.
+    private bool isDead = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -62,27 +67,27 @@ public class HeartSystem : MonoBehaviour
     
     void DeadState()
     {
-      //  Debug.Log("vida atual" + vida);
+        if (isDead) return; // já morreu, não repete a lógica todo frame
+
+        if (vida < 0)
         {
-            if (vida < 0)
-            {
-                vida = 0;
-            }
-
-            if (vida <= 0)
-            {
-                Debug.Log("Morreu");
-
-                GetComponent<PlayerController>().enabled = false;
-                Destroy(gameObject, 1.0f);
-            }
+            vida = 0;
         }
-       // if (vida <= 0)
+
+        if (vida <= 0)
         {
-            
-          //  Debug.Log("Game Over");
-           // GetComponent<PlayerController>().enabled = false;
-           // Destroy(gameObject, 1.0f);
+            isDead = true;
+
+            Debug.Log("Morreu");
+
+            GetComponent<PlayerController>().enabled = false;
+
+            if (DeathScreenManager.Instance != null)
+                DeathScreenManager.Instance.ShowDeathScreen();
+            else
+                Debug.LogWarning("DeathScreenManager não encontrado na cena!");
+
+            Destroy(gameObject, 1.0f);
         }
     }
 }
