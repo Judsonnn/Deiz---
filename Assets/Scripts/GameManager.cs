@@ -1,5 +1,13 @@
 using UnityEngine;
 
+// Este script deve ficar num GameObject chamado "GameManager", dentro da
+// cena MainMenu (a PRIMEIRA cena que carrega quando o jogo abre).
+//
+// Por quê na MainMenu e não na cena da fase? Porque esse objeto usa
+// DontDestroyOnLoad — ele precisa existir ANTES de qualquer troca de cena
+// pra conseguir sobreviver a ela. Se ele nascesse só dentro da fase, um
+// SceneManager.LoadScene(mesma cena) o destruiria e recriaria do zero,
+// perdendo o checkpoint salvo — exatamente o problema que queremos evitar.
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -9,8 +17,6 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton persistente: sobrevive ao SceneManager.LoadScene,
-        // por isso o checkpoint não se perde quando a fase reinicia.
         if (Instance == null)
         {
             Instance = this;
@@ -18,7 +24,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Já existe um GameManager (veio de antes do reload) —
+            // Já existe um GameManager (sobrevivente de antes do reload) —
             // esse novo, recém-criado pela cena, é descartado.
             Destroy(gameObject);
         }
@@ -32,15 +38,17 @@ public class GameManager : MonoBehaviour
         Debug.Log("Checkpoint salvo em: " + position);
     }
 
-    // Chamado pelo PlayerController no Start(), pra saber onde nascer
+    // Chamado pelo PlayerController no Start(), pra saber onde nascer.
+    // Retorna true + a posição se existir checkpoint; false se não existir
+    // (nesse caso o player deve nascer na posição padrão que já está na cena).
     public bool TryGetCheckpoint(out Vector3 position)
     {
         position = checkpointPosition;
         return hasCheckpoint;
     }
 
-    // Opcional: usar isso no botão "Voltar ao Menu" ou ao começar um New Game,
-    // pra não carregar um checkpoint de uma partida anterior por engano
+    // Chame isso ao voltar pro menu ou começar um "Novo Jogo", pra não
+    // carregar um checkpoint de uma partida anterior por engano.
     public void ClearCheckpoint()
     {
         hasCheckpoint = false;
