@@ -121,4 +121,29 @@ public class DroneController : MonoBehaviour
         playerOnTop.SetParent(null);
         playerOnTop = null;
     }
+
+    private void OnDrawGizmos()
+    {
+        if (waypoints == null || waypoints.Length == 0) return;
+
+        // Desenha uma esfera em cada waypoint e uma linha ligando todos eles,
+        // assim dá pra ver e ajustar a rota direto na Scene View
+        Gizmos.color = Color.cyan;
+        for (int i = 0; i < waypoints.Length; i++)
+        {
+            if (waypoints[i] == null) continue;
+
+            Gizmos.DrawWireSphere(waypoints[i].position, 0.2f);
+
+            if (i > 0 && waypoints[i - 1] != null)
+                Gizmos.DrawLine(waypoints[i - 1].position, waypoints[i].position);
+        }
+
+        // Linha amarela do drone pro primeiro waypoint
+        if (waypoints[0] != null)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, waypoints[0].position);
+        }
+    }
 }

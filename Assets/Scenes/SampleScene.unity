@@ -2066,6 +2066,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 287931951}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &138277353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 138277354}
+  m_Layer: 0
+  m_Name: Waypoints
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &138277354
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 138277353}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.24, y: 3.43, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1663884280}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &138973495
 GameObject:
   m_ObjectHideFlags: 0
@@ -10006,7 +10037,7 @@ Transform:
   m_GameObject: {fileID: 660817041}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.07, y: 2.23, z: 0}
+  m_LocalPosition: {x: -2.91, y: 2.43, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -23421,7 +23452,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1663884280}
   m_Layer: 0
-  m_Name: Wayponts
+  m_Name: Wayponts drone 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23436,12 +23467,13 @@ Transform:
   m_GameObject: {fileID: 1663884279}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.0245451, y: -0.24731821, z: 0}
-  m_LocalScale: {x: 0.16322267, y: 0.16322267, z: 0.16322267}
+  m_LocalPosition: {x: 276.00253, y: 10.453335, z: 0}
+  m_LocalScale: {x: 2.2021, y: 2.2021, z: 2.2021}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 660817042}
-  m_Father: {fileID: 8018093845359328910}
+  - {fileID: 138277354}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1665491092
 GameObject:
@@ -30567,12 +30599,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4333224978302760809, guid: d35e365500073b740818cd113cbcda3b, type: 3}
       propertyPath: waypoints.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4333224978302760809, guid: d35e365500073b740818cd113cbcda3b, type: 3}
       propertyPath: 'waypoints.Array.data[0]'
       value: 
       objectReference: {fileID: 660817042}
+    - target: {fileID: 4333224978302760809, guid: d35e365500073b740818cd113cbcda3b, type: 3}
+      propertyPath: 'waypoints.Array.data[1]'
+      value: 
+      objectReference: {fileID: 138277354}
     - target: {fileID: 5723823065471858653, guid: d35e365500073b740818cd113cbcda3b, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.x
       value: 0.5
@@ -30688,10 +30724,7 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 5723823065471858653, guid: d35e365500073b740818cd113cbcda3b, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 7646010424771776809, guid: d35e365500073b740818cd113cbcda3b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1663884280}
+    m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3295880087453808245, guid: d35e365500073b740818cd113cbcda3b, type: 3}
       insertIndex: -1
@@ -30700,11 +30733,6 @@ PrefabInstance:
 --- !u!1 &8018093845359328909 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3295880087453808245, guid: d35e365500073b740818cd113cbcda3b, type: 3}
-  m_PrefabInstance: {fileID: 8018093845359328908}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &8018093845359328910 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7646010424771776809, guid: d35e365500073b740818cd113cbcda3b, type: 3}
   m_PrefabInstance: {fileID: 8018093845359328908}
   m_PrefabAsset: {fileID: 0}
 --- !u!61 &8018093845359328911
@@ -30777,3 +30805,4 @@ SceneRoots:
   - {fileID: 1047987727}
   - {fileID: 1146516165}
   - {fileID: 8018093845359328908}
+  - {fileID: 1663884280}
