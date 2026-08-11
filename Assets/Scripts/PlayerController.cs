@@ -57,6 +57,16 @@ public class PlayerController : MonoBehaviour
         transform.localScale = Vector3.one;
         shooter = GetComponent<PlayerShooter>();
 
+        // ── CHECKPOINT ──────────────────────────────────────────────────────
+        // Se existe um checkpoint salvo (de uma tentativa anterior), nasce lá.
+        // Se não existe, nasce na posição padrão que está na cena normalmente.
+        if (GameManager.Instance != null &&
+            GameManager.Instance.TryGetCheckpoint(out Vector3 checkpointPos))
+        {
+            transform.position = checkpointPos;
+        }
+        // ────────────────────────────────────────────────────────────────────
+
         if (cameraTarget != null)
             cameraTargetPosition = cameraTarget.localPosition;
     }
