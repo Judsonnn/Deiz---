@@ -1,30 +1,41 @@
+using System.Collections;
 using UnityEngine;
 
 public class DroneController : MonoBehaviour
 {
-    public enum DroneState { Floating, Moving, Done }
+    public enum DroneState { Floating, Moving, Launching, Returning }
 
     [Header("Waypoints")]
     [Tooltip("Arraste os Transforms dos pontos de rota aqui, na ordem que o drone vai percorrer")]
     public Transform[] waypoints;
 
     [Header("Flutuação (estado passivo)")]
-    public float floatAmplitude = 0.3f;   // altura do movimento senoidal (sobe/desce)
-    public float floatFrequency = 1.5f;   // velocidade da flutuação
+    public float floatAmplitude = 0.3f;
+    public float floatFrequency = 1.5f;
 
     [Header("Movimento")]
     public float moveSpeed = 3f;
     [Tooltip("Distância pra considerar que chegou num waypoint")]
     public float waypointThreshold = 0.1f;
 
+    [Header("Empurrão no último waypoint")]
+    [Tooltip("Força vertical aplicada no player ao chegar no último waypoint")]
+    public float launchForce = 15f;
+    [Tooltip("Força horizontal aplicada no player (na direção que o drone estava andando)")]
+    public float launchHorizontalForce = 8f;
+    [Tooltip("Delay antes de retornar à posição inicial (dá tempo do player sair)")]
+    public float returnDelay = 0.5f;
+
+    [Header("Retorno")]
+    public float returnSpeed = 5f;
+
     [Header("Detecção do Player em cima")]
-    [Tooltip("Altura máxima acima do drone pra considerar que o player está em cima (não do lado)")]
     public float topDetectionHeight = 0.5f;
 
     private DroneState currentState = DroneState.Floating;
     private int currentWaypointIndex = 0;
     private Vector3 startPosition;
-    private Transform playerOnTop;  // referência ao player enquanto estiver em cima
+    private Transform playerOnTop;
 
     void Start()
     {
@@ -35,15 +46,14 @@ public class DroneController : MonoBehaviour
     {
         switch (currentState)
         {
-            case DroneState.Floating: HandleFloating(); break;
-            case DroneState.Moving:   HandleMoving();   break;
-            case DroneState.Done:                       break;
+            case DroneState.Floating:  HandleFloating();  break;
+            case DroneState.Moving:    HandleMoving();    break;
+            case DroneState.Returning: HandleReturning(); break;
         }
     }
 
     private void HandleFloating()
     {
-        // Movimento senoidal no eixo Y — cria o efeito de "boiar" passivamente
         float newY = startPosition.y + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude;
         transform.position = new Vector3(transform.position.x, newY, transform.position.z);
     }
@@ -65,19 +75,75 @@ public class DroneController : MonoBehaviour
 
             if (currentWaypointIndex >= waypoints.Length)
             {
-                // Chegou no último waypoint — para e solta o player
-                currentState = DroneState.Done;
+                // Chegou no último waypoint — empurra o player pra cima e retorna
+                currentState = DroneState.Launching;
+                StartCoroutine(LaunchAndReturn());
+            }
+        }
+    }
+
+    private void HandleReturning()
+    {
+        // Volta suavemente pra posição inicial
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            startPosition,
+            returnSpeed * Time.deltaTime
+        );
+
+        // Chegou na posição inicial — volta a flutuar normalmente
+        if (Vector3.Distance(transform.position, startPosition) <= 0.05f)
+        {
+            transform.position = startPosition;
+            currentWaypointIndex = 0;
+            currentState = DroneState.Floating;
+        }
+    }
+
+    private IEnumerator LaunchAndReturn()
+    {
+        // Calcula a direção horizontal que o drone estava andando
+        // (do waypoint anterior pro último — ou do início pro primeiro se só tiver 1)
+        float horizontalDirection = 0f;
+        if (waypoints.Length >= 2)
+        {
+            Transform prev = waypoints[waypoints.Length - 2];
+            Transform last = waypoints[waypoints.Length - 1];
+            horizontalDirection = Mathf.Sign(last.position.x - prev.position.x);
+        }
+        else if (waypoints.Length == 1)
+        {
+            horizontalDirection = Mathf.Sign(waypoints[0].position.x - startPosition.x);
+        }
+
+        // Empurra o player na direção do movimento do drone + pra cima
+        if (playerOnTop != null)
+        {
+            Rigidbody2D playerRb = playerOnTop.GetComponent<Rigidbody2D>();
+            if (playerRb != null)
+            {
+                ReleasePlayer();
+                playerRb.linearVelocity = new Vector2(
+                    horizontalDirection * launchHorizontalForce,
+                    launchForce
+                );
+            }
+            else
+            {
                 ReleasePlayer();
             }
         }
+
+        yield return new WaitForSeconds(returnDelay);
+
+        currentState = DroneState.Returning;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (!collision.gameObject.CompareTag("Player")) return;
+        if (currentState != DroneState.Floating) return;
 
-        // Verifica se o player está em cima do drone (não do lado nem embaixo)
-        // comparando se o ponto de contato está acima do centro do drone
         foreach (ContactPoint2D contact in collision.contacts)
         {
             if (contact.point.y >= transform.position.y + topDetectionHeight * 0.5f)
@@ -92,20 +158,21 @@ public class DroneController : MonoBehaviour
     {
         if (!collision.gameObject.CompareTag("Player")) return;
 
-        // Player saiu do drone (pulou ou caiu) — solta ele independente do estado
-        ReleasePlayer();
+        // Player saiu do drone (pulou durante a rota) — solta e retorna
+        if (playerOnTop != null)
+        {
+            ReleasePlayer();
+
+            if (currentState == DroneState.Moving)
+                StartCoroutine(LaunchAndReturn());
+        }
     }
 
     private void OnPlayerLanded(Transform player)
     {
-        if (currentState != DroneState.Floating) return;
-
-        // Gruda o player no drone virando-o filho temporário —
-        // assim ele se move junto sem precisar de nenhum script no player
         playerOnTop = player;
         player.SetParent(transform);
 
-        // Inicia a rota
         if (waypoints != null && waypoints.Length > 0)
         {
             currentWaypointIndex = 0;
@@ -116,8 +183,6 @@ public class DroneController : MonoBehaviour
     private void ReleasePlayer()
     {
         if (playerOnTop == null) return;
-
-        // Desvincula o player do drone — ele volta a se mover normalmente
         playerOnTop.SetParent(null);
         playerOnTop = null;
     }
@@ -126,8 +191,6 @@ public class DroneController : MonoBehaviour
     {
         if (waypoints == null || waypoints.Length == 0) return;
 
-        // Desenha uma esfera em cada waypoint e uma linha ligando todos eles,
-        // assim dá pra ver e ajustar a rota direto na Scene View
         Gizmos.color = Color.cyan;
         for (int i = 0; i < waypoints.Length; i++)
         {
@@ -139,11 +202,14 @@ public class DroneController : MonoBehaviour
                 Gizmos.DrawLine(waypoints[i - 1].position, waypoints[i].position);
         }
 
-        // Linha amarela do drone pro primeiro waypoint
         if (waypoints[0] != null)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, waypoints[0].position);
         }
+
+        // Marca o ponto inicial de retorno em verde
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(Application.isPlaying ? startPosition : transform.position, 0.25f);
     }
 }
