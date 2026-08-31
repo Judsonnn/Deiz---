@@ -2133,10 +2133,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3857435da6f75ba4caf35090f7560478, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraZoneTrigger
-  normalCam: {fileID: 553295585}
   zoomCam: {fileID: 1933735501}
-  normalPriority: 10
   zoomPriority: 20
+  normalPriority: 10
   blendInSpeed: 0.2
   blendOutSpeed: 1.2
 --- !u!61 &130248656
@@ -9961,7 +9960,7 @@ Transform:
   m_GameObject: {fileID: 606940432}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 347.21, y: -5.73, z: 0}
+  m_LocalPosition: {x: 347.43, y: -5.73, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22921,15 +22920,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1440108558}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3857435da6f75ba4caf35090f7560478, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraZoneTrigger
-  normalCam: {fileID: 553295585}
   zoomCam: {fileID: 1933735501}
-  normalPriority: 10
   zoomPriority: 20
+  normalPriority: 10
   blendInSpeed: 0.2
   blendOutSpeed: 1.2
 --- !u!61 &1440108561
@@ -22939,7 +22937,7 @@ BoxCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1440108558}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}

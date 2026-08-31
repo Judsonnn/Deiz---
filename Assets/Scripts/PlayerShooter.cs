@@ -13,7 +13,8 @@ public class PlayerShooter : MonoBehaviour
     [Header("Superaquecimento")]
     public float maxHeat = 100f;
     public float heatPerShot = 20f;
-    public float cooldownRate = 5f;
+
+    // Tempo que a barra leva para ir do calor atual até 0
     public float overheatCooldown = 8f;
 
     [Header("UI")]
@@ -26,14 +27,21 @@ public class PlayerShooter : MonoBehaviour
     public float fireBlinkInterval = 0.15f;
 
     private float currentHeat = 0f;
+
     private bool isOverheated = false;
     private bool facingRight = true;
+
     private Coroutine blinkCoroutine;
+
+    // Controle do resfriamento
+    private float cooldownTimer = 0f;
+    private float cooldownStartHeat = 0f;
+    private bool isCooling = false;
 
     void Start()
     {
         if (fireIcon != null)
-            fireIcon.SetActive(true); // sempre visível
+            fireIcon.SetActive(true);
     }
 
     void Update()
@@ -45,7 +53,8 @@ public class PlayerShooter : MonoBehaviour
 
     private void HandleShoot()
     {
-        if (isOverheated) return;
+        if (isOverheated)
+            return;
 
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0))
             Shoot();
@@ -53,16 +62,37 @@ public class PlayerShooter : MonoBehaviour
 
     private void Shoot()
     {
-        if (bulletPrefab == null || firePoint == null) return;
+        if (bulletPrefab == null || firePoint == null)
+            return;
 
-        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.identity);
+        GameObject bullet = Instantiate(
+            bulletPrefab,
+            firePoint.position,
+            Quaternion.identity
+        );
 
         Bullet bulletScript = bullet.GetComponent<Bullet>();
-        if (bulletScript != null)
-            bulletScript.Init(facingRight ? 1f : -1f, bulletSpeed, damage);
 
+        if (bulletScript != null)
+        {
+            bulletScript.Init(
+                facingRight ? 1f : -1f,
+                bulletSpeed,
+                damage
+            );
+        }
+
+        // Aumenta o calor
         currentHeat += heatPerShot;
 
+        currentHeat = Mathf.Clamp(currentHeat, 0f, maxHeat);
+
+        // Começa um novo ciclo de resfriamento
+        cooldownStartHeat = currentHeat;
+        cooldownTimer = 0f;
+        isCooling = true;
+
+        // Chegou ao máximo
         if (currentHeat >= maxHeat)
         {
             currentHeat = maxHeat;
@@ -74,56 +104,93 @@ public class PlayerShooter : MonoBehaviour
     {
         isOverheated = true;
 
-        // Começa a piscar ao encher
+        // Começa a piscar
         if (fireIcon != null)
         {
-            if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
+            if (blinkCoroutine != null)
+                StopCoroutine(blinkCoroutine);
+
             blinkCoroutine = StartCoroutine(BlinkFireIcon());
         }
+
+        // Reinicia o resfriamento
+        cooldownStartHeat = maxHeat;
+        cooldownTimer = 0f;
+        isCooling = true;
     }
 
     private IEnumerator BlinkFireIcon()
     {
-        // Pisca enquanto a barra não esvaziar
         while (currentHeat > 0f)
         {
             if (fireIcon != null)
                 fireIcon.SetActive(!fireIcon.activeSelf);
+
             yield return new WaitForSeconds(fireBlinkInterval);
         }
 
-        // Para de piscar quando esvazia — volta visível normal
+        // Quando terminar de esfriar
         if (fireIcon != null)
             fireIcon.SetActive(true);
     }
 
     private void HandleHeat()
     {
-        if (isOverheated)
-        {
-            // Desce gradualmente durante o overheat
-            currentHeat -= (maxHeat / overheatCooldown) * Time.deltaTime;
+        if (!isCooling)
+            return;
 
-            if (currentHeat <= 0f)
+        // Avança o tempo do resfriamento
+        cooldownTimer += Time.deltaTime;
+
+        // Quanto do tempo total já passou
+        float progress = cooldownTimer / overheatCooldown;
+
+        progress = Mathf.Clamp01(progress);
+
+        // Faz a barra ir do calor inicial até 0
+        currentHeat = Mathf.Lerp(
+            cooldownStartHeat,
+            0f,
+            progress
+        );
+
+        // Terminou de esfriar
+        if (progress >= 1f)
+        {
+            currentHeat = 0f;
+            isCooling = false;
+
+            if (isOverheated)
             {
-                currentHeat = 0f;
                 isOverheated = false;
             }
-        }
-        else
-        {
-            currentHeat -= cooldownRate * Time.deltaTime;
-            currentHeat = Mathf.Clamp(currentHeat, 0f, maxHeat);
+
+            // Para o pisca-pisca
+            if (blinkCoroutine != null)
+            {
+                StopCoroutine(blinkCoroutine);
+                blinkCoroutine = null;
+            }
+
+            if (fireIcon != null)
+                fireIcon.SetActive(true);
         }
     }
 
     private void UpdateHeatBar()
     {
-        if (heatBarFill == null) return;
+        if (heatBarFill == null)
+            return;
 
         float ratio = currentHeat / maxHeat;
+
         heatBarFill.fillAmount = ratio;
-        heatBarFill.color = Color.Lerp(normalColor, hotColor, ratio);
+
+        heatBarFill.color = Color.Lerp(
+            normalColor,
+            hotColor,
+            ratio
+        );
     }
 
     public void SetFacing(bool right)

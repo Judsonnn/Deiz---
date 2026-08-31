@@ -3,50 +3,85 @@ using Unity.Cinemachine;
 
 public class CameraZoneTrigger : MonoBehaviour
 {
-    [Header("Câmeras")]
-    public CinemachineCamera normalCam;
+    [Header("Câmera de Zoom desta zona")]
     public CinemachineCamera zoomCam;
 
     [Header("Prioridades")]
-    public int normalPriority = 10;
     public int zoomPriority = 20;
+    public int normalPriority = 10;
 
     [Header("Transição")]
-    public float blendInSpeed = 0.2f;  // rápido para abrir
-    public float blendOutSpeed = 1.2f; // suave para voltar
+    public float blendInSpeed = 0.2f;
+    public float blendOutSpeed = 1.2f;
 
     private CinemachineBrain brain;
 
     void Start()
     {
         brain = Camera.main.GetComponent<CinemachineBrain>();
+
+        // Garante que esta câmera começa desligada
+        if (zoomCam != null)
+        {
+            zoomCam.Priority = 0;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("Player")) return;
+        if (!other.CompareTag("Player"))
+            return;
 
-        // Ativa zoom out — transição rápida
-        brain.DefaultBlend = new CinemachineBlendDefinition(
-            CinemachineBlendDefinition.Styles.EaseIn,
-            blendInSpeed
-        );
+        // Procura todas as zonas de zoom
+        CameraZoneTrigger[] zones =
+            FindObjectsByType<CameraZoneTrigger>(FindObjectsSortMode.None);
 
-        zoomCam.Priority = zoomPriority;
-        normalCam.Priority = normalPriority;
+        // Desativa o zoom de todas as outras zonas
+        foreach (CameraZoneTrigger zone in zones)
+        {
+            if (zone != this && zone.zoomCam != null)
+            {
+                zone.zoomCam.Priority = 0;
+            }
+        }
+
+        // Transição rápida para o zoom
+        if (brain != null)
+        {
+            brain.DefaultBlend = new CinemachineBlendDefinition(
+                CinemachineBlendDefinition.Styles.EaseIn,
+                blendInSpeed
+            );
+        }
+
+        // Ativa o zoom desta zona
+        if (zoomCam != null)
+        {
+            zoomCam.Priority = zoomPriority;
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (!other.CompareTag("Player")) return;
+        if (!other.CompareTag("Player"))
+            return;
 
-        // Volta ao normal — transição suave
-        brain.DefaultBlend = new CinemachineBlendDefinition(
-            CinemachineBlendDefinition.Styles.EaseOut,
-            blendOutSpeed
-        );
+        // Transição suave de volta para a câmera normal
+        if (brain != null)
+        {
+            brain.DefaultBlend = new CinemachineBlendDefinition(
+                CinemachineBlendDefinition.Styles.EaseOut,
+                blendOutSpeed
+            );
+        }
 
-        zoomCam.Priority = 0;
-        normalCam.Priority = normalPriority;
+        // Desativa o zoom
+        if (zoomCam != null)
+        {
+            zoomCam.Priority = 0;
+        }
+
+        // A câmera normal volta automaticamente,
+        // pois ela permanece com prioridade 10.
     }
 }
