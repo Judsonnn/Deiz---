@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3161652437733454895}
   - component: {fileID: 2181389178958672766}
   - component: {fileID: -1558067543017107931}
+  - component: {fileID: 7764845628237406936}
   m_Layer: 0
   m_Name: Vida
   m_TagString: Untagged
@@ -139,3 +140,16 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &7764845628237406936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5839818489234566172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b866af3a0ee8e448a7c815d1c7e0419, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthCollectible
+  vidaRecuperada: 1
