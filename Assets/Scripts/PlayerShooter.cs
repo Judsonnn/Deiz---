@@ -10,6 +10,10 @@ public class PlayerShooter : MonoBehaviour
     public float bulletSpeed = 15f;
     public int damage = 1;
 
+    [Header("Áudio")]
+    public AudioSource shootAudioSource;
+    public AudioClip shootSound;
+
     [Header("Superaquecimento")]
     public float maxHeat = 100f;
     public float heatPerShot = 20f;
@@ -65,12 +69,20 @@ public class PlayerShooter : MonoBehaviour
         if (bulletPrefab == null || firePoint == null)
             return;
 
+        // Cria a bala
         GameObject bullet = Instantiate(
             bulletPrefab,
             firePoint.position,
             Quaternion.identity
         );
 
+        // Toca o som do tiro exatamente no momento do disparo
+        if (shootAudioSource != null && shootSound != null)
+        {
+            shootAudioSource.PlayOneShot(shootSound);
+        }
+
+        // Configura a bala
         Bullet bulletScript = bullet.GetComponent<Bullet>();
 
         if (bulletScript != null)
@@ -85,7 +97,11 @@ public class PlayerShooter : MonoBehaviour
         // Aumenta o calor
         currentHeat += heatPerShot;
 
-        currentHeat = Mathf.Clamp(currentHeat, 0f, maxHeat);
+        currentHeat = Mathf.Clamp(
+            currentHeat,
+            0f,
+            maxHeat
+        );
 
         // Começa um novo ciclo de resfriamento
         cooldownStartHeat = currentHeat;
