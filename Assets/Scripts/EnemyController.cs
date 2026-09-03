@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public float speed = 3f;
     public int damage = 1;
 
     private Transform player;
@@ -18,6 +17,12 @@ public class EnemyController : MonoBehaviour
     
     [Header("Patrol")]
     public bool patrolRight = true;
+
+    [Header("Aceleração ao se aproximar")]
+    public float minSpeed = 2f;        // velocidade quando está longe
+    public float maxSpeed = 6f;        // velocidade quando está perto
+    public float accelerateDistance = 5f; // distância a partir da qual começa a acelerar
+    private float currentSpeed;
 
     void Update()
     {
@@ -36,7 +41,12 @@ public class EnemyController : MonoBehaviour
             groundCheckDistance,
             groundLayer
         );
-        
+
+        // Calcula a velocidade atual baseada na distância até o player
+        float distanceToPlayer = Mathf.Abs(player.position.x - transform.position.x);
+        float proximityFactor = 1f - Mathf.Clamp01(distanceToPlayer / accelerateDistance);
+        currentSpeed = Mathf.Lerp(minSpeed, maxSpeed, proximityFactor);
+
         Vector2 targetPosition = new Vector2(
             player.position.x,
             transform.position.y
@@ -51,7 +61,7 @@ public class EnemyController : MonoBehaviour
                 transform.position = Vector2.MoveTowards(
                     transform.position,
                     targetPosition,
-                    speed * Time.deltaTime
+                    currentSpeed * Time.deltaTime
                 );
             }
         }
@@ -64,7 +74,7 @@ public class EnemyController : MonoBehaviour
                 transform.position = Vector2.MoveTowards(
                     transform.position,
                     targetPosition,
-                    speed * Time.deltaTime
+                    currentSpeed * Time.deltaTime
                 );
             }
         }

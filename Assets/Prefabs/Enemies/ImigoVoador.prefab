@@ -112,8 +112,16 @@ MonoBehaviour:
   patrolRadius: 4
   patrolSpeed: 4
   patrolPointWaitTime: 1.5
-  chaseSpeed: 5
   detectionRadius: 9
+  positioningSpeed: 4.5
+  flankHeight: 3
+  flankHorizontalOffset: 2.5
+  positioningArriveThreshold: 0.3
+  telegraphTime: 0.5
+  diveSpeed: 9
+  diveOvershoot: 1.5
+  attackCooldown: 2
+  minFlightHeight: 0.3
   searchTime: 2
   damage: 1
   damageCooldown: 1
@@ -126,7 +134,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 46515403103196738}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0

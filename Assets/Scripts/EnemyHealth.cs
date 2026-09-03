@@ -4,7 +4,7 @@ using System.Collections;
 public class EnemyHealth : MonoBehaviour
 {
     [Header("Vida")]
-    public int maxHealth = 2;
+    public int maxHealth = 1;
     private int currentHealth;
 
     [Header("Barra de Vida")]
