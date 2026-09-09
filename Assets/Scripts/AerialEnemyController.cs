@@ -25,11 +25,12 @@ public class AerialEnemyController : MonoBehaviour
     public float diveSpeed = 9f;
     public float diveOvershoot = 1.5f;
     public float attackCooldown = 2f;
+    public float maxDiveDuration = 2f;
 
     [Header("Detecção de Chão (Raycast)")]
     public LayerMask groundLayer;
-    public float minHeightAboveGround = 1.5f; // altura mínima que o drone mantém acima de qualquer superfície
-    public float groundCheckDistance = 20f;   // até onde o raycast procura chão abaixo
+    public float minHeightAboveGround = 1.5f;
+    public float groundCheckDistance = 20f;
 
     [Header("Search")]
     public float searchTime = 3f;
@@ -48,9 +49,13 @@ public class AerialEnemyController : MonoBehaviour
     private Vector2 currentPatrolTarget;
 
     private Vector2 flankTarget;
-    private Vector2 diveTarget;
+
+    // Dive — agora parametrizado pela linha original, não por MoveTowards direto
+    private Vector2 diveStartPos;
     private Vector2 diveDirection;
-    private float diveTraveled;
+    private float diveTotalDistance;
+    private float diveDistanceTraveled;
+    private float diveTimer;
 
     private float patrolWaitTimer;
     private float searchTimer;
@@ -90,9 +95,7 @@ public class AerialEnemyController : MonoBehaviour
     }
 
     // ──────────────────────────────────────
-    // Raycast de chão — retorna a altura mínima
-    // segura (Y do chão + margem) para uma
-    // posição X qualquer
+    // Raycast de chão
     // ──────────────────────────────────────
     private float GetMinSafeHeight(Vector2 position)
     {
@@ -101,7 +104,6 @@ public class AerialEnemyController : MonoBehaviour
         if (hit.collider != null)
             return hit.point.y + minHeightAboveGround;
 
-        // Não achou chão abaixo — não força clamp (deixa passar livre)
         return float.NegativeInfinity;
     }
 
@@ -214,37 +216,41 @@ public class AerialEnemyController : MonoBehaviour
     }
 
     // ──────────────────────────────────────
-    // Dive
+    // Dive — agora parametrizado por distância
+    // percorrida ao longo da linha ORIGINAL,
+    // sem realimentar o clamp no cálculo da rota
     // ──────────────────────────────────────
     private void StartDive()
     {
         currentState = EnemyState.Diving;
 
         Vector2 targetAtAttackTime = player != null ? (Vector2)player.position : (Vector2)transform.position;
-        diveDirection = (targetAtAttackTime - (Vector2)transform.position).normalized;
-        Vector2 target = targetAtAttackTime + diveDirection * diveOvershoot;
 
-        diveTarget = ClampAboveGround(target);
-        diveTraveled = 0f;
+        diveStartPos = transform.position;
+        diveDirection = (targetAtAttackTime - diveStartPos).normalized;
+        diveTotalDistance = Vector2.Distance(diveStartPos, targetAtAttackTime) + diveOvershoot;
+
+        diveDistanceTraveled = 0f;
+        diveTimer = 0f;
     }
 
     private void HandleDive()
     {
-        Vector2 previousPos = transform.position;
+        diveTimer += Time.deltaTime;
+        diveDistanceTraveled += diveSpeed * Time.deltaTime;
 
-        Vector2 newPos = Vector2.MoveTowards(
-            transform.position,
-            diveTarget,
-            diveSpeed * Time.deltaTime
-        );
+        float clampedDistance = Mathf.Min(diveDistanceTraveled, diveTotalDistance);
 
-        // Clamp contínuo via raycast — nenhum frame passa da superfície abaixo dele
-        newPos = ClampAboveGround(newPos);
+        // Posição na linha ORIGINAL do dive — nunca é afetada pelo clamp,
+        // então o avanço horizontal nunca trava ou desacelera
+        Vector2 rawPos = diveStartPos + diveDirection * clampedDistance;
 
-        transform.position = newPos;
-        diveTraveled += Vector2.Distance(previousPos, transform.position);
+        // Só agora aplicamos o clamp de chão, sem realimentar o próximo frame
+        Vector2 finalPos = ClampAboveGround(rawPos);
 
-        if (Vector2.Distance(transform.position, diveTarget) < 0.1f)
+        transform.position = finalPos;
+
+        if (diveDistanceTraveled >= diveTotalDistance || diveTimer >= maxDiveDuration)
         {
             EndDive();
         }
@@ -278,7 +284,7 @@ public class AerialEnemyController : MonoBehaviour
     }
 
     // ──────────────────────────────────────
-    // Movimento suave
+    // Movimento suave (usado fora do dive)
     // ──────────────────────────────────────
     private void MoveTowards(Vector2 target, float speed)
     {
@@ -297,7 +303,7 @@ public class AerialEnemyController : MonoBehaviour
         if (spriteRenderer == null) return;
 
         Vector2 target = currentState == EnemyState.Diving
-            ? diveTarget
+            ? diveStartPos + diveDirection * diveTotalDistance
             : (currentState == EnemyState.Positioning ? flankTarget : currentPatrolTarget);
 
         spriteRenderer.flipX = target.x < transform.position.x;
@@ -336,7 +342,6 @@ public class AerialEnemyController : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // Raycast de chão a partir da posição atual
         Gizmos.color = Color.green;
         Gizmos.DrawLine(transform.position, transform.position + Vector3.down * groundCheckDistance);
 
@@ -349,7 +354,7 @@ public class AerialEnemyController : MonoBehaviour
         if (Application.isPlaying && currentState == EnemyState.Diving)
         {
             Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(transform.position, diveTarget);
+            Gizmos.DrawLine(diveStartPos, diveStartPos + diveDirection * diveTotalDistance);
         }
     }
 }
