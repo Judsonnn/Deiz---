@@ -2,7 +2,14 @@ using UnityEngine;
 
 public class AerialEnemyController : MonoBehaviour
 {
-    public enum EnemyState { Patrolling, Positioning, Telegraph, Diving, Searching }
+    public enum EnemyState
+    {
+        Patrolling,
+        Positioning,
+        Telegraph,
+        Diving,
+        Searching
+    }
 
     [Header("Patrol")]
     public float patrolRadius = 4f;
@@ -29,7 +36,10 @@ public class AerialEnemyController : MonoBehaviour
 
     [Header("Detecção de Chão (Raycast)")]
     public LayerMask groundLayer;
-    public float minHeightAboveGround = 1.5f;
+
+    // Distância que o inimigo fica acima do chão
+    public float minHeightAboveGround = 1f;
+
     public float groundCheckDistance = 20f;
 
     [Header("Search")]
@@ -45,17 +55,26 @@ public class AerialEnemyController : MonoBehaviour
     private EnemyState currentState = EnemyState.Patrolling;
 
     private Transform player;
+
     private Vector2 patrolCenter;
     private Vector2 currentPatrolTarget;
 
     private Vector2 flankTarget;
 
-    // Dive — agora parametrizado pela linha original, não por MoveTowards direto
+    // ──────────────────────────────────────
+    // Dive
+    // ──────────────────────────────────────
+
     private Vector2 diveStartPos;
     private Vector2 diveDirection;
+
     private float diveTotalDistance;
     private float diveDistanceTraveled;
     private float diveTimer;
+
+    // ──────────────────────────────────────
+    // Timers
+    // ──────────────────────────────────────
 
     private float patrolWaitTimer;
     private float searchTimer;
@@ -65,15 +84,25 @@ public class AerialEnemyController : MonoBehaviour
     private bool canDamage = true;
     private bool playerInRange = false;
 
+    // ──────────────────────────────────────
+    // Start
+    // ──────────────────────────────────────
+
     void Start()
     {
         patrolCenter = transform.position;
+
         PickNewPatrolPoint();
 
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+
         if (playerObj != null)
             player = playerObj.transform;
     }
+
+    // ──────────────────────────────────────
+    // Update
+    // ──────────────────────────────────────
 
     void Update()
     {
@@ -84,11 +113,25 @@ public class AerialEnemyController : MonoBehaviour
 
         switch (currentState)
         {
-            case EnemyState.Patrolling:  HandlePatrol();      break;
-            case EnemyState.Positioning: HandlePositioning(); break;
-            case EnemyState.Telegraph:   HandleTelegraph();   break;
-            case EnemyState.Diving:      HandleDive();        break;
-            case EnemyState.Searching:   HandleSearch();      break;
+            case EnemyState.Patrolling:
+                HandlePatrol();
+                break;
+
+            case EnemyState.Positioning:
+                HandlePositioning();
+                break;
+
+            case EnemyState.Telegraph:
+                HandleTelegraph();
+                break;
+
+            case EnemyState.Diving:
+                HandleDive();
+                break;
+
+            case EnemyState.Searching:
+                HandleSearch();
+                break;
         }
 
         HandleFlip();
@@ -97,12 +140,20 @@ public class AerialEnemyController : MonoBehaviour
     // ──────────────────────────────────────
     // Raycast de chão
     // ──────────────────────────────────────
+
     private float GetMinSafeHeight(Vector2 position)
     {
-        RaycastHit2D hit = Physics2D.Raycast(position, Vector2.down, groundCheckDistance, groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(
+            position,
+            Vector2.down,
+            groundCheckDistance,
+            groundLayer
+        );
 
         if (hit.collider != null)
+        {
             return hit.point.y + minHeightAboveGround;
+        }
 
         return float.NegativeInfinity;
     }
@@ -110,26 +161,42 @@ public class AerialEnemyController : MonoBehaviour
     private Vector2 ClampAboveGround(Vector2 position)
     {
         float minSafeY = GetMinSafeHeight(position);
-        position.y = Mathf.Max(position.y, minSafeY);
+
+        if (minSafeY != float.NegativeInfinity)
+        {
+            position.y = Mathf.Max(position.y, minSafeY);
+        }
+
         return position;
     }
 
     // ──────────────────────────────────────
-    // Visibilidade
+    // Visibilidade do Player
     // ──────────────────────────────────────
+
     private void CheckPlayerVisibility()
     {
-        if (player == null) return;
+        if (player == null)
+            return;
 
-        float dist = Vector2.Distance(transform.position, player.position);
+        float dist = Vector2.Distance(
+            transform.position,
+            player.position
+        );
+
         playerInRange = dist <= detectionRadius;
 
         if (playerInRange)
         {
-            if (currentState == EnemyState.Patrolling || currentState == EnemyState.Searching)
+            if (
+                currentState == EnemyState.Patrolling ||
+                currentState == EnemyState.Searching
+            )
             {
                 if (attackCooldownTimer <= 0f)
+                {
                     StartPositioning();
+                }
             }
         }
         else
@@ -145,66 +212,111 @@ public class AerialEnemyController : MonoBehaviour
     // ──────────────────────────────────────
     // Patrulha
     // ──────────────────────────────────────
+
     private void HandlePatrol()
     {
-        MoveTowards(currentPatrolTarget, patrolSpeed);
+        MoveTowards(
+            currentPatrolTarget,
+            patrolSpeed
+        );
 
-        if (Vector2.Distance(transform.position, currentPatrolTarget) < 0.2f)
+        if (
+            Vector2.Distance(
+                transform.position,
+                currentPatrolTarget
+            ) < 0.2f
+        )
         {
             patrolWaitTimer -= Time.deltaTime;
+
             if (patrolWaitTimer <= 0f)
+            {
                 PickNewPatrolPoint();
+            }
         }
     }
 
     private void PickNewPatrolPoint()
     {
-        Vector2 randomOffset = Random.insideUnitCircle * patrolRadius;
-        Vector2 target = patrolCenter + randomOffset;
-        currentPatrolTarget = ClampAboveGround(target);
-        patrolWaitTimer = patrolPointWaitTime;
+        Vector2 randomOffset =
+            Random.insideUnitCircle * patrolRadius;
+
+        Vector2 target =
+            patrolCenter + randomOffset;
+
+        currentPatrolTarget =
+            ClampAboveGround(target);
+
+        patrolWaitTimer =
+            patrolPointWaitTime;
     }
 
     // ──────────────────────────────────────
     // Positioning
     // ──────────────────────────────────────
+
     private void StartPositioning()
     {
         currentState = EnemyState.Positioning;
+
         RecalculateFlankTarget();
     }
 
     private void RecalculateFlankTarget()
     {
-        if (player == null) return;
+        if (player == null)
+            return;
 
-        float side = -Mathf.Sign(player.position.x - transform.position.x);
-        if (side == 0f) side = 1f;
+        float side =
+            -Mathf.Sign(
+                player.position.x -
+                transform.position.x
+            );
 
-        Vector2 target = (Vector2)player.position
+        if (side == 0f)
+            side = 1f;
+
+        Vector2 target =
+            (Vector2)player.position
             + Vector2.up * flankHeight
-            + Vector2.right * flankHorizontalOffset * side;
+            + Vector2.right *
+              flankHorizontalOffset *
+              side;
 
-        flankTarget = ClampAboveGround(target);
+        flankTarget =
+            ClampAboveGround(target);
     }
 
     private void HandlePositioning()
     {
-        if (player == null) return;
+        if (player == null)
+            return;
 
         RecalculateFlankTarget();
-        MoveTowards(flankTarget, positioningSpeed);
 
-        if (Vector2.Distance(transform.position, flankTarget) <= positioningArriveThreshold)
+        MoveTowards(
+            flankTarget,
+            positioningSpeed
+        );
+
+        if (
+            Vector2.Distance(
+                transform.position,
+                flankTarget
+            ) <= positioningArriveThreshold
+        )
         {
             currentState = EnemyState.Telegraph;
-            telegraphTimer = telegraphTime;
+
+            telegraphTimer =
+                telegraphTime;
         }
     }
 
     // ──────────────────────────────────────
     // Telegraph
     // ──────────────────────────────────────
+
     private void HandleTelegraph()
     {
         telegraphTimer -= Time.deltaTime;
@@ -216,113 +328,250 @@ public class AerialEnemyController : MonoBehaviour
     }
 
     // ──────────────────────────────────────
-    // Dive — agora parametrizado por distância
-    // percorrida ao longo da linha ORIGINAL,
-    // sem realimentar o clamp no cálculo da rota
+    // Início do Dive
     // ──────────────────────────────────────
+
     private void StartDive()
     {
         currentState = EnemyState.Diving;
 
-        Vector2 targetAtAttackTime = player != null ? (Vector2)player.position : (Vector2)transform.position;
+        Vector2 targetAtAttackTime =
+            player != null
+                ? (Vector2)player.position
+                : (Vector2)transform.position;
 
-        diveStartPos = transform.position;
-        diveDirection = (targetAtAttackTime - diveStartPos).normalized;
-        diveTotalDistance = Vector2.Distance(diveStartPos, targetAtAttackTime) + diveOvershoot;
+        diveStartPos =
+            transform.position;
+
+        diveDirection =
+            (targetAtAttackTime - diveStartPos)
+            .normalized;
+
+        diveTotalDistance =
+            Vector2.Distance(
+                diveStartPos,
+                targetAtAttackTime
+            ) + diveOvershoot;
 
         diveDistanceTraveled = 0f;
         diveTimer = 0f;
     }
 
+    // ──────────────────────────────────────
+    // Dive Attack
+    // ──────────────────────────────────────
+    //
+    // IMPORTANTE:
+    //
+    // A trajetória do dive continua sendo calculada
+    // pela linha ORIGINAL.
+    //
+    // Porém, antes de colocar o inimigo na posição,
+    // verificamos se ele chegou à altura mínima acima
+    // do chão.
+    //
+    // Se chegou:
+    // 1. Coloca o inimigo exatamente na altura segura.
+    // 2. Para o dive.
+    // 3. Não permite que ele atravesse o chão.
+    //
+    // ──────────────────────────────────────
+
     private void HandleDive()
     {
         diveTimer += Time.deltaTime;
-        diveDistanceTraveled += diveSpeed * Time.deltaTime;
 
-        float clampedDistance = Mathf.Min(diveDistanceTraveled, diveTotalDistance);
+        // Avança pela distância da trajetória original
+        diveDistanceTraveled +=
+            diveSpeed * Time.deltaTime;
 
-        // Posição na linha ORIGINAL do dive — nunca é afetada pelo clamp,
-        // então o avanço horizontal nunca trava ou desacelera
-        Vector2 rawPos = diveStartPos + diveDirection * clampedDistance;
+        float clampedDistance =
+            Mathf.Min(
+                diveDistanceTraveled,
+                diveTotalDistance
+            );
 
-        // Só agora aplicamos o clamp de chão, sem realimentar o próximo frame
-        Vector2 finalPos = ClampAboveGround(rawPos);
+        // Calcula a posição ORIGINAL do dive.
+        // Não usamos o clamp aqui para manter
+        // a trajetória consistente.
+        Vector2 rawPos =
+            diveStartPos +
+            diveDirection *
+            clampedDistance;
 
-        transform.position = finalPos;
+        // Verifica o chão na posição atual
+        float minSafeY =
+            GetMinSafeHeight(rawPos);
 
-        if (diveDistanceTraveled >= diveTotalDistance || diveTimer >= maxDiveDuration)
+        // ──────────────────────────────────
+        // CHEGOU AO CHÃO
+        // ──────────────────────────────────
+
+        if (
+            minSafeY != float.NegativeInfinity &&
+            rawPos.y <= minSafeY
+        )
+        {
+            // Coloca o inimigo exatamente
+            // na altura segura acima do chão.
+            rawPos.y = minSafeY;
+
+            transform.position = rawPos;
+
+            // Encerra o dive imediatamente.
+            EndDive();
+
+            return;
+        }
+
+        // Continua o movimento normalmente
+        transform.position = rawPos;
+
+        // ──────────────────────────────────
+        // Fim normal do ataque
+        // ──────────────────────────────────
+
+        if (
+            diveDistanceTraveled >=
+            diveTotalDistance
+            ||
+            diveTimer >= maxDiveDuration
+        )
         {
             EndDive();
         }
     }
 
+    // ──────────────────────────────────────
+    // Final do Dive
+    // ──────────────────────────────────────
+
     private void EndDive()
     {
-        attackCooldownTimer = attackCooldown;
-        currentState = EnemyState.Searching;
-        searchTimer = searchTime;
+        attackCooldownTimer =
+            attackCooldown;
+
+        currentState =
+            EnemyState.Searching;
+
+        searchTimer =
+            searchTime;
     }
 
     // ──────────────────────────────────────
     // Search
     // ──────────────────────────────────────
+
     private void HandleSearch()
     {
         searchTimer -= Time.deltaTime;
 
         if (searchTimer <= 0f)
         {
-            currentState = EnemyState.Patrolling;
+            currentState =
+                EnemyState.Patrolling;
+
             PickNewPatrolPoint();
+
             return;
         }
 
-        if (playerInRange && attackCooldownTimer <= 0f)
+        if (
+            playerInRange &&
+            attackCooldownTimer <= 0f
+        )
         {
             StartPositioning();
         }
     }
 
     // ──────────────────────────────────────
-    // Movimento suave (usado fora do dive)
+    // Movimento suave
     // ──────────────────────────────────────
-    private void MoveTowards(Vector2 target, float speed)
+
+    private void MoveTowards(
+        Vector2 target,
+        float speed
+    )
     {
-        transform.position = Vector2.MoveTowards(
-            transform.position,
-            target,
-            speed * Time.deltaTime
-        );
+        transform.position =
+            Vector2.MoveTowards(
+                transform.position,
+                target,
+                speed * Time.deltaTime
+            );
     }
 
     // ──────────────────────────────────────
     // Flip
     // ──────────────────────────────────────
+
     private void HandleFlip()
     {
-        if (spriteRenderer == null) return;
+        if (spriteRenderer == null)
+            return;
 
-        Vector2 target = currentState == EnemyState.Diving
-            ? diveStartPos + diveDirection * diveTotalDistance
-            : (currentState == EnemyState.Positioning ? flankTarget : currentPatrolTarget);
+        Vector2 target;
 
-        spriteRenderer.flipX = target.x < transform.position.x;
+        if (currentState == EnemyState.Diving)
+        {
+            target =
+                diveStartPos +
+                diveDirection *
+                diveTotalDistance;
+        }
+        else if (
+            currentState ==
+            EnemyState.Positioning
+        )
+        {
+            target = flankTarget;
+        }
+        else
+        {
+            target =
+                currentPatrolTarget;
+        }
+
+        spriteRenderer.flipX =
+            target.x < transform.position.x;
     }
 
     // ──────────────────────────────────────
     // Dano por contato
     // ──────────────────────────────────────
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        if (!canDamage) return;
-        if (!collision.gameObject.CompareTag("Player")) return;
 
-        PlayerController pc = collision.gameObject.GetComponent<PlayerController>();
+    private void OnCollisionStay2D(
+        Collision2D collision
+    )
+    {
+        if (!canDamage)
+            return;
+
+        if (
+            !collision.gameObject.CompareTag(
+                "Player"
+            )
+        )
+            return;
+
+        PlayerController pc =
+            collision.gameObject
+                .GetComponent<PlayerController>();
+
         if (pc != null)
         {
-            pc.TakeDamage(damage, transform);
+            pc.TakeDamage(
+                damage,
+                transform
+            );
+
             canDamage = false;
-            Invoke(nameof(ResetDamage), damageCooldown);
+
+            Invoke(
+                nameof(ResetDamage),
+                damageCooldown
+            );
         }
     }
 
@@ -334,27 +583,67 @@ public class AerialEnemyController : MonoBehaviour
     // ──────────────────────────────────────
     // Gizmos
     // ──────────────────────────────────────
+
     private void OnDrawGizmosSelected()
     {
+        // Área de patrulha
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(Application.isPlaying ? (Vector3)patrolCenter : transform.position, patrolRadius);
 
+        Gizmos.DrawWireSphere(
+            Application.isPlaying
+                ? (Vector3)patrolCenter
+                : transform.position,
+            patrolRadius
+        );
+
+        // Área de detecção
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
+        Gizmos.DrawWireSphere(
+            transform.position,
+            detectionRadius
+        );
+
+        // Raycast de chão
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * groundCheckDistance);
 
-        if (Application.isPlaying && currentState == EnemyState.Positioning)
+        Gizmos.DrawLine(
+            transform.position,
+            transform.position +
+            Vector3.down *
+            groundCheckDistance
+        );
+
+        // Alvo de flanco
+        if (
+            Application.isPlaying &&
+            currentState ==
+            EnemyState.Positioning
+        )
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(flankTarget, 0.3f);
+
+            Gizmos.DrawWireSphere(
+                flankTarget,
+                0.3f
+            );
         }
 
-        if (Application.isPlaying && currentState == EnemyState.Diving)
+        // Linha original do Dive
+        if (
+            Application.isPlaying &&
+            currentState ==
+            EnemyState.Diving
+        )
         {
             Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(diveStartPos, diveStartPos + diveDirection * diveTotalDistance);
+
+            Gizmos.DrawLine(
+                diveStartPos,
+                diveStartPos +
+                diveDirection *
+                diveTotalDistance
+            );
         }
     }
 }

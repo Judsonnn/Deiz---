@@ -121,7 +121,12 @@ MonoBehaviour:
   diveSpeed: 9
   diveOvershoot: 1.5
   attackCooldown: 2
-  minFlightHeight: 0.3
+  maxDiveDuration: 2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  minHeightAboveGround: 0.5
+  groundCheckDistance: 20
   searchTime: 2
   damage: 1
   damageCooldown: 1

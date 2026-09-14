@@ -14,27 +14,53 @@ public class EnemyController : MonoBehaviour
     public Transform groundCheck;
     public float groundCheckDistance = 1f;
     public LayerMask groundLayer;
-    
-    [Header("Patrol")]
+
+    [Header("Patrulha")]
     public bool patrolRight = true;
 
+    // Distância que o inimigo pode andar para cada lado.
+    // Exemplo: 2 = aproximadamente 2 unidades para cada lado.
+    public float patrolDistance = 2f;
+
+    // Velocidade durante a patrulha
+    public float patrolSpeed = 1.5f;
+
+    private Vector3 patrolStartPosition;
+    private int patrolDirection = 1;
+
     [Header("Aceleração ao se aproximar")]
-    public float minSpeed = 2f;        // velocidade quando está longe
-    public float maxSpeed = 6f;        // velocidade quando está perto
-    public float accelerateDistance = 5f; // distância a partir da qual começa a acelerar
+    public float minSpeed = 2f;
+    public float maxSpeed = 6f;
+    public float accelerateDistance = 5f;
+
     private float currentSpeed;
+
+    void Start()
+    {
+        // Guarda a posição inicial para definir os limites da patrulha
+        patrolStartPosition = transform.position;
+
+        // Define o lado inicial
+        patrolDirection = patrolRight ? 1 : -1;
+    }
 
     void Update()
     {
-        if (player == null)
+        // Se ainda não detectou o player, fica patrulhando
+        if (!playerDetected)
         {
-            playerDetected = false;
+            Patrol();
             return;
         }
 
-        if (!playerDetected)
+        if (player == null)
             return;
 
+        AttackPlayer();
+    }
+
+    private void Patrol()
+    {
         bool groundAhead = Physics2D.Raycast(
             groundCheck.position,
             Vector2.down,
@@ -42,10 +68,64 @@ public class EnemyController : MonoBehaviour
             groundLayer
         );
 
-        // Calcula a velocidade atual baseada na distância até o player
-        float distanceToPlayer = Mathf.Abs(player.position.x - transform.position.x);
-        float proximityFactor = 1f - Mathf.Clamp01(distanceToPlayer / accelerateDistance);
-        currentSpeed = Mathf.Lerp(minSpeed, maxSpeed, proximityFactor);
+        if (!groundAhead)
+            return;
+
+        // Limites da patrulha
+        float rightLimit = patrolStartPosition.x + patrolDistance;
+        float leftLimit = patrolStartPosition.x - patrolDistance;
+
+        // Se chegou ao limite direito, começa a voltar
+        if (transform.position.x >= rightLimit)
+        {
+            patrolDirection = -1;
+        }
+
+        // Se chegou ao limite esquerdo, começa a voltar
+        if (transform.position.x <= leftLimit)
+        {
+            patrolDirection = 1;
+        }
+
+        // Move o inimigo
+        transform.Translate(
+            Vector2.right * patrolDirection * patrolSpeed * Time.deltaTime
+        );
+
+        // Vira o sprite de acordo com a direção
+        if (patrolDirection > 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+    }
+
+    private void AttackPlayer()
+    {
+        bool groundAhead = Physics2D.Raycast(
+            groundCheck.position,
+            Vector2.down,
+            groundCheckDistance,
+            groundLayer
+        );
+
+        // Calcula a velocidade baseada na distância até o player
+        float distanceToPlayer = Mathf.Abs(
+            player.position.x - transform.position.x
+        );
+
+        float proximityFactor = 1f - Mathf.Clamp01(
+            distanceToPlayer / accelerateDistance
+        );
+
+        currentSpeed = Mathf.Lerp(
+            minSpeed,
+            maxSpeed,
+            proximityFactor
+        );
 
         Vector2 targetPosition = new Vector2(
             player.position.x,
@@ -88,7 +168,8 @@ public class EnemyController : MonoBehaviour
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (!canDamage) return;
+        if (!canDamage)
+            return;
 
         if (collision.gameObject.CompareTag("Player"))
         {
@@ -115,13 +196,22 @@ public class EnemyController : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (groundCheck == null) return;
+        if (groundCheck == null)
+            return;
 
         Gizmos.color = Color.red;
 
         Gizmos.DrawLine(
             groundCheck.position,
             groundCheck.position + Vector3.down * groundCheckDistance
+        );
+
+        // Mostra visualmente a área da patrulha
+        Gizmos.color = Color.yellow;
+
+        Gizmos.DrawLine(
+            transform.position + Vector3.left * patrolDistance,
+            transform.position + Vector3.right * patrolDistance
         );
     }
 }
