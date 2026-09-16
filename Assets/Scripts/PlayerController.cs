@@ -11,6 +11,11 @@ public class PlayerController : MonoBehaviour
     public float secondJumpForce = 11f;
     public int maxJumps = 2;
 
+    [Header("Jump Keys")]
+    public KeyCode jumpKeyPrimary = KeyCode.Space;
+    public KeyCode jumpKeyAlt1 = KeyCode.UpArrow;
+    public KeyCode jumpKeyAlt2 = KeyCode.W;
+
     [Header("Jump Gravity")]
     public float normalGravity = 2f;
     public float fallGravity = 5f;
@@ -65,8 +70,6 @@ public class PlayerController : MonoBehaviour
         shooter = GetComponent<PlayerShooter>();
 
         // ── CHECKPOINT ──────────────────────────────────────────────────────
-        // Se existe um checkpoint salvo (de uma tentativa anterior), nasce lá.
-        // Se não existe, nasce na posição padrão que está na cena normalmente.
         if (GameManager.Instance != null &&
             GameManager.Instance.TryGetCheckpoint(out Vector3 checkpointPos))
         {
@@ -143,9 +146,23 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private bool JumpPressed()
+    {
+        return Input.GetKeyDown(jumpKeyPrimary)
+            || Input.GetKeyDown(jumpKeyAlt1)
+            || Input.GetKeyDown(jumpKeyAlt2);
+    }
+
+    private bool JumpHeld()
+    {
+        return Input.GetKey(jumpKeyPrimary)
+            || Input.GetKey(jumpKeyAlt1)
+            || Input.GetKey(jumpKeyAlt2);
+    }
+
     private void HandleJump()
     {
-        if (!Input.GetKeyDown(KeyCode.Space))
+        if (!JumpPressed())
             return;
 
         // Primeiro pulo
@@ -159,7 +176,6 @@ public class PlayerController : MonoBehaviour
             jumpCount = 1;
             coyoteTimeCounter = 0f;
 
-            // Toca o som do primeiro pulo
             PlayJumpSound();
         }
         // Segundo pulo
@@ -172,7 +188,6 @@ public class PlayerController : MonoBehaviour
 
             jumpCount = 2;
 
-            // Toca o som do segundo pulo
             PlayJumpSound();
         }
     }
@@ -202,8 +217,7 @@ public class PlayerController : MonoBehaviour
                 );
             }
         }
-        else if (rb.linearVelocity.y > 0 &&
-                 !Input.GetKey(KeyCode.Space))
+        else if (rb.linearVelocity.y > 0 && !JumpHeld())
         {
             rb.gravityScale = lowJumpGravity;
         }

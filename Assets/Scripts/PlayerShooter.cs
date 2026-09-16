@@ -10,6 +10,10 @@ public class PlayerShooter : MonoBehaviour
     public float bulletSpeed = 15f;
     public int damage = 1;
 
+    [Header("Teclas de Tiro")]
+    public KeyCode shootKey1 = KeyCode.Z;
+    public KeyCode shootKey2 = KeyCode.L;
+
     [Header("Áudio")]
     public AudioSource shootAudioSource;
     public AudioClip shootSound;
@@ -17,8 +21,6 @@ public class PlayerShooter : MonoBehaviour
     [Header("Superaquecimento")]
     public float maxHeat = 100f;
     public float heatPerShot = 20f;
-
-    // Tempo que a barra leva para ir do calor atual até 0
     public float overheatCooldown = 8f;
 
     [Header("UI")]
@@ -37,7 +39,6 @@ public class PlayerShooter : MonoBehaviour
 
     private Coroutine blinkCoroutine;
 
-    // Controle do resfriamento
     private float cooldownTimer = 0f;
     private float cooldownStartHeat = 0f;
     private bool isCooling = false;
@@ -60,7 +61,7 @@ public class PlayerShooter : MonoBehaviour
         if (isOverheated)
             return;
 
-        if (Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(shootKey1) || Input.GetKeyDown(shootKey2))
             Shoot();
     }
 
@@ -69,20 +70,17 @@ public class PlayerShooter : MonoBehaviour
         if (bulletPrefab == null || firePoint == null)
             return;
 
-        // Cria a bala
         GameObject bullet = Instantiate(
             bulletPrefab,
             firePoint.position,
             Quaternion.identity
         );
 
-        // Toca o som do tiro exatamente no momento do disparo
         if (shootAudioSource != null && shootSound != null)
         {
             shootAudioSource.PlayOneShot(shootSound);
         }
 
-        // Configura a bala
         Bullet bulletScript = bullet.GetComponent<Bullet>();
 
         if (bulletScript != null)
@@ -94,7 +92,6 @@ public class PlayerShooter : MonoBehaviour
             );
         }
 
-        // Aumenta o calor
         currentHeat += heatPerShot;
 
         currentHeat = Mathf.Clamp(
@@ -103,12 +100,10 @@ public class PlayerShooter : MonoBehaviour
             maxHeat
         );
 
-        // Começa um novo ciclo de resfriamento
         cooldownStartHeat = currentHeat;
         cooldownTimer = 0f;
         isCooling = true;
 
-        // Chegou ao máximo
         if (currentHeat >= maxHeat)
         {
             currentHeat = maxHeat;
@@ -120,7 +115,6 @@ public class PlayerShooter : MonoBehaviour
     {
         isOverheated = true;
 
-        // Começa a piscar
         if (fireIcon != null)
         {
             if (blinkCoroutine != null)
@@ -129,7 +123,6 @@ public class PlayerShooter : MonoBehaviour
             blinkCoroutine = StartCoroutine(BlinkFireIcon());
         }
 
-        // Reinicia o resfriamento
         cooldownStartHeat = maxHeat;
         cooldownTimer = 0f;
         isCooling = true;
@@ -145,7 +138,6 @@ public class PlayerShooter : MonoBehaviour
             yield return new WaitForSeconds(fireBlinkInterval);
         }
 
-        // Quando terminar de esfriar
         if (fireIcon != null)
             fireIcon.SetActive(true);
     }
@@ -155,22 +147,18 @@ public class PlayerShooter : MonoBehaviour
         if (!isCooling)
             return;
 
-        // Avança o tempo do resfriamento
         cooldownTimer += Time.deltaTime;
 
-        // Quanto do tempo total já passou
         float progress = cooldownTimer / overheatCooldown;
 
         progress = Mathf.Clamp01(progress);
 
-        // Faz a barra ir do calor inicial até 0
         currentHeat = Mathf.Lerp(
             cooldownStartHeat,
             0f,
             progress
         );
 
-        // Terminou de esfriar
         if (progress >= 1f)
         {
             currentHeat = 0f;
@@ -181,7 +169,6 @@ public class PlayerShooter : MonoBehaviour
                 isOverheated = false;
             }
 
-            // Para o pisca-pisca
             if (blinkCoroutine != null)
             {
                 StopCoroutine(blinkCoroutine);
