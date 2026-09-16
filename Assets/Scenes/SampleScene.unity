@@ -16474,6 +16474,9 @@ MonoBehaviour:
   fallGravity: 4.5
   lowJumpGravity: 4
   maxFallSpeed: 14
+  audioSource: {fileID: 950324756}
+  jumpSound: {fileID: 8300000, guid: 812a8791e9b2eca4cbcf5f12c55069db, type: 3}
+  jumpVolume: 0.42
   groundCheck: {fileID: 125253190}
   groundCheckSize: {x: 0.3, y: 0.1}
   groundLayer:
@@ -16634,7 +16637,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 8eb24a407dcaad646b022fc4d6db582c, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.93
   m_Pitch: 1
   Loop: 0
   Mute: 0

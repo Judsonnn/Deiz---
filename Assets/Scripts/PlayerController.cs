@@ -17,6 +17,13 @@ public class PlayerController : MonoBehaviour
     public float lowJumpGravity = 4f;
     public float maxFallSpeed = 14f;
 
+    [Header("Jump Audio")]
+    public AudioSource audioSource;
+    public AudioClip jumpSound;
+
+    [Range(0f, 1f)]
+    public float jumpVolume = 0.5f;
+
     [Header("Ground Check")]
     public Transform groundCheck;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
@@ -103,7 +110,10 @@ public class PlayerController : MonoBehaviour
         }
 
         if (!takingDamage)
-            rb.linearVelocity = new Vector2(move * speed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(
+                move * speed,
+                rb.linearVelocity.y
+            );
     }
 
     private void HandleGroundCheck()
@@ -135,18 +145,46 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        if (!Input.GetKeyDown(KeyCode.Space)) return;
+        if (!Input.GetKeyDown(KeyCode.Space))
+            return;
 
+        // Primeiro pulo
         if (coyoteTimeCounter > 0f && jumpCount <= 1)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, firstJumpForce);
+            rb.linearVelocity = new Vector2(
+                rb.linearVelocity.x,
+                firstJumpForce
+            );
+
             jumpCount = 1;
             coyoteTimeCounter = 0f;
+
+            // Toca o som do primeiro pulo
+            PlayJumpSound();
         }
+        // Segundo pulo
         else if (jumpCount == 1)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, secondJumpForce);
+            rb.linearVelocity = new Vector2(
+                rb.linearVelocity.x,
+                secondJumpForce
+            );
+
             jumpCount = 2;
+
+            // Toca o som do segundo pulo
+            PlayJumpSound();
+        }
+    }
+
+    private void PlayJumpSound()
+    {
+        if (audioSource != null && jumpSound != null)
+        {
+            audioSource.PlayOneShot(
+                jumpSound,
+                jumpVolume
+            );
         }
     }
 
@@ -157,9 +195,15 @@ public class PlayerController : MonoBehaviour
             rb.gravityScale = fallGravity;
 
             if (rb.linearVelocity.y < -maxFallSpeed)
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, -maxFallSpeed);
+            {
+                rb.linearVelocity = new Vector2(
+                    rb.linearVelocity.x,
+                    -maxFallSpeed
+                );
+            }
         }
-        else if (rb.linearVelocity.y > 0 && !Input.GetKey(KeyCode.Space))
+        else if (rb.linearVelocity.y > 0 &&
+                 !Input.GetKey(KeyCode.Space))
         {
             rb.gravityScale = lowJumpGravity;
         }
@@ -171,16 +215,35 @@ public class PlayerController : MonoBehaviour
 
     private void HandleCameraLookAhead()
     {
-        if (cameraTarget == null) return;
+        if (cameraTarget == null)
+            return;
 
         float move = Input.GetAxisRaw("Horizontal");
 
         if (move > 0)
-            cameraTargetPosition = new Vector3(lookAheadDistance, 0f, cameraTarget.localPosition.z);
+        {
+            cameraTargetPosition = new Vector3(
+                lookAheadDistance,
+                0f,
+                cameraTarget.localPosition.z
+            );
+        }
         else if (move < 0)
-            cameraTargetPosition = new Vector3(-lookAheadDistance, 0f, cameraTarget.localPosition.z);
+        {
+            cameraTargetPosition = new Vector3(
+                -lookAheadDistance,
+                0f,
+                cameraTarget.localPosition.z
+            );
+        }
         else
-            cameraTargetPosition = new Vector3(0f, 0f, cameraTarget.localPosition.z);
+        {
+            cameraTargetPosition = new Vector3(
+                0f,
+                0f,
+                cameraTarget.localPosition.z
+            );
+        }
 
         cameraTarget.localPosition = Vector3.Lerp(
             cameraTarget.localPosition,
@@ -192,17 +255,25 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(int damage, Transform enemy)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
+
         if (heart != null)
             heart.vida -= damage;
 
         takingDamage = true;
         TriggerBlink();
 
-        float direction = transform.position.x > enemy.position.x ? 1f : -1f;
-        Vector2 knockbackDirection = new Vector2(direction, 1f).normalized;
+        float direction =
+            transform.position.x > enemy.position.x ? 1f : -1f;
+
+        Vector2 knockbackDirection =
+            new Vector2(direction, 1f).normalized;
 
         rb.linearVelocity = Vector2.zero;
-        rb.AddForce(knockbackDirection * knockbackForce, ForceMode2D.Impulse);
+
+        rb.AddForce(
+            knockbackDirection * knockbackForce,
+            ForceMode2D.Impulse
+        );
 
         Invoke(nameof(StopTakingDamage), 0.3f);
     }
@@ -210,6 +281,7 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
+
         if (heart != null)
             heart.vida -= damage;
         else
@@ -237,6 +309,7 @@ public class PlayerController : MonoBehaviour
                 spriteRenderer.enabled = !spriteRenderer.enabled;
 
             yield return new WaitForSeconds(blinkInterval);
+
             elapsed += blinkInterval;
         }
 
@@ -246,8 +319,14 @@ public class PlayerController : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (groundCheck == null) return;
+        if (groundCheck == null)
+            return;
+
         Gizmos.color = Color.green;
-        Gizmos.DrawWireCube(groundCheck.position, groundCheckSize);
+
+        Gizmos.DrawWireCube(
+            groundCheck.position,
+            groundCheckSize
+        );
     }
 }
