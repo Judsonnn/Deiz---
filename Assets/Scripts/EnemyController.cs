@@ -33,6 +33,17 @@ public class EnemyController : MonoBehaviour
     public float maxSpeed = 6f;
     public float accelerateDistance = 5f;
 
+    [Header("Player Acima")]
+    // Diferença de altura mínima pra considerar que o player
+    // está "acima" do inimigo (ex: pulou em cima dele).
+    public float heightIgnoreThreshold = 1f;
+
+    // Distância horizontal máxima pra considerar que o player
+    // está "em cima" do inimigo. Se estiver mais longe que isso
+    // horizontalmente, o inimigo continua perseguindo normalmente
+    // mesmo com o player mais alto.
+    public float aboveHorizontalRange = 1f;
+
     private float currentSpeed;
 
     void Start()
@@ -112,11 +123,25 @@ public class EnemyController : MonoBehaviour
             groundLayer
         );
 
-        // Calcula a velocidade baseada na distância até o player
+        float heightDifference = player.position.y - transform.position.y;
+
         float distanceToPlayer = Mathf.Abs(
             player.position.x - transform.position.x
         );
 
+        // Só ignora a perseguição se o player estiver ACIMA
+        // e PERTO horizontalmente (ou seja, realmente em cima dele).
+        // Se estiver longe, mesmo mais alto, continua perseguindo normal.
+        bool playerIsAbove =
+            heightDifference > heightIgnoreThreshold &&
+            distanceToPlayer <= aboveHorizontalRange;
+
+        if (playerIsAbove)
+        {
+            return;
+        }
+
+        // Calcula a velocidade baseada na distância até o player
         float proximityFactor = 1f - Mathf.Clamp01(
             distanceToPlayer / accelerateDistance
         );
@@ -171,21 +196,32 @@ public class EnemyController : MonoBehaviour
         if (!canDamage)
             return;
 
-        if (collision.gameObject.CompareTag("Player"))
+        if (!collision.gameObject.CompareTag("Player"))
+            return;
+
+        // Verifica a normal do primeiro ponto de contato.
+        // Se o player caiu em cima do inimigo, a normal aponta
+        // predominantemente pra cima (Y positivo) — nesse caso,
+        // não causa dano, só deixa o player "pisando" nele.
+        ContactPoint2D contact = collision.GetContact(0);
+
+        if (contact.normal.y > 0.5f)
         {
-            PlayerController playerController =
-                collision.gameObject.GetComponent<PlayerController>();
+            return;
+        }
 
-            if (playerController != null)
-            {
-                playerController.TakeDamage(
-                    damage,
-                    transform
-                );
+        PlayerController playerController =
+            collision.gameObject.GetComponent<PlayerController>();
 
-                canDamage = false;
-                Invoke(nameof(ResetDamage), damageCooldown);
-            }
+        if (playerController != null)
+        {
+            playerController.TakeDamage(
+                damage,
+                transform
+            );
+
+            canDamage = false;
+            Invoke(nameof(ResetDamage), damageCooldown);
         }
     }
 
@@ -212,6 +248,13 @@ public class EnemyController : MonoBehaviour
         Gizmos.DrawLine(
             transform.position + Vector3.left * patrolDistance,
             transform.position + Vector3.right * patrolDistance
+        );
+
+        // Mostra a zona de "player acima" pra ajudar a calibrar
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(
+            transform.position + Vector3.up * heightIgnoreThreshold,
+            aboveHorizontalRange
         );
     }
 }
