@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8f6dec5feecda4e428e089da3ba736c3
+guid: 592e654f769bfdf429fc23ff9236e159
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3609642257730524957
-    second: paredeVermelha_0
+      213: 6126506723036313394
+    second: paredeVermelhaRo_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -178,7 +178,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: paredeVermelha_0
+      name: paredeVermelhaRo_0
       rect:
         serializedVersion: 2
         x: 0
@@ -193,8 +193,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d17544a3286081230800000000000000
-      internalID: 3609642257730524957
+      spriteID: 2373f9ca769b50550800000000000000
+      internalID: 6126506723036313394
       vertices: []
       indices: 
       edges: []
@@ -213,7 +213,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      paredeVermelha_0: 3609642257730524957
+      paredeVermelhaRo_0: 6126506723036313394
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
