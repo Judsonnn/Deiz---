@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f9dfb000827123642b93a0c546c125cb
+guid: c2355cbf3d3c67344b3cc189887c0c8d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 865625224923517021
-    second: paredeAmarelaRo_0
+      213: -6788541086685387314
+    second: paredeAmarelaRo (1)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -178,7 +178,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: paredeAmarelaRo_0
+      name: paredeAmarelaRo (1)_0
       rect:
         serializedVersion: 2
         x: 0
@@ -193,8 +193,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d501f284e81530c00800000000000000
-      internalID: 865625224923517021
+      spriteID: ec529f059d14ac1a0800000000000000
+      internalID: -6788541086685387314
       vertices: []
       indices: 
       edges: []
@@ -213,7 +213,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      paredeAmarelaRo_0: 865625224923517021
+      paredeAmarelaRo (1)_0: -6788541086685387314
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
