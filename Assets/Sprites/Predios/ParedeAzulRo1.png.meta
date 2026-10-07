@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9380fd1282fd767419955071d23960db
+guid: 2403a64ebcd36c6498e85c8fe6d7e58d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7890690412108407011
-    second: ParedeAzulRo_0
+      213: 7962982794852079171
+    second: ParedeAzulRo1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -178,7 +178,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ParedeAzulRo_0
+      name: ParedeAzulRo1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -193,8 +193,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d1f92b970e2ae7290800000000000000
-      internalID: -7890690412108407011
+      spriteID: 34694b789a2328e60800000000000000
+      internalID: 7962982794852079171
       vertices: []
       indices: 
       edges: []
@@ -213,7 +213,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ParedeAzulRo_0: -7890690412108407011
+      ParedeAzulRo1_0: 7962982794852079171
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
