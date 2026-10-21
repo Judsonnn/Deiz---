@@ -1,215 +1,145 @@
-using System.Collections;
 using UnityEngine;
 
 public class DroneController : MonoBehaviour
 {
-    public enum DroneState { Floating, Moving, Launching, Returning }
+    private enum Estado { Parado, Indo, Continuando, Voltando }
 
     [Header("Waypoints")]
-    [Tooltip("Arraste os Transforms dos pontos de rota aqui, na ordem que o drone vai percorrer")]
+    [Tooltip("Arraste os pontos aqui, na ordem do percurso")]
     public Transform[] waypoints;
 
-    [Header("Flutuação (estado passivo)")]
-    public float floatAmplitude = 0.3f;
-    public float floatFrequency = 1.5f;
-
     [Header("Movimento")]
-    public float moveSpeed = 3f;
-    [Tooltip("Distância pra considerar que chegou num waypoint")]
-    public float waypointThreshold = 0.1f;
+    public float velocidadeIda = 3f;
+    public float velocidadeVolta = 5f;
 
-    [Header("Empurrão no último waypoint")]
-    [Tooltip("Força vertical aplicada no player ao chegar no último waypoint")]
-    public float launchForce = 15f;
-    [Tooltip("Força horizontal aplicada no player (na direção que o drone estava andando)")]
-    public float launchHorizontalForce = 8f;
-    [Tooltip("Delay antes de retornar à posição inicial (dá tempo do player sair)")]
-    public float returnDelay = 0.5f;
+    [Header("Depois do último waypoint")]
+    [Tooltip("Quanto ele continua andando, na mesma direção, antes de voltar")]
+    public float distanciaExtra = 20f;
 
-    [Header("Retorno")]
-    public float returnSpeed = 5f;
+    [Header("Detecção")]
+    public float margemTopo = 0.25f;
 
-    [Header("Detecção do Player em cima")]
-    public float topDetectionHeight = 0.5f;
+    private Estado estado = Estado.Parado;
+    private Vector3 posInicial;
+    private int indice;
+    private Transform player;
+    private Vector3 direcaoFinal;
+    private float distanciaPercorrida;
 
-    private DroneState currentState = DroneState.Floating;
-    private int currentWaypointIndex = 0;
-    private Vector3 startPosition;
-    private Transform playerOnTop;
-
-    void Start()
+    private void Start()
     {
-        startPosition = transform.position;
+        posInicial = transform.position;
     }
 
-    void Update()
+    private void Update()
     {
-        switch (currentState)
+        switch (estado)
         {
-            case DroneState.Floating:  HandleFloating();  break;
-            case DroneState.Moving:    HandleMoving();    break;
-            case DroneState.Returning: HandleReturning(); break;
+            case Estado.Indo:        Ir();         break;
+            case Estado.Continuando: Continuar();  break;
+            case Estado.Voltando:    Voltar();     break;
         }
     }
 
-    private void HandleFloating()
+    private void Ir()
     {
-        float newY = startPosition.y + Mathf.Sin(Time.time * floatFrequency) * floatAmplitude;
-        transform.position = new Vector3(transform.position.x, newY, transform.position.z);
+        Vector3 alvo = Alvo(indice);
+        transform.position = Vector3.MoveTowards(transform.position, alvo, velocidadeIda * Time.deltaTime);
+
+        if (transform.position != alvo) return;
+
+        indice++;
+        if (indice >= waypoints.Length)
+        {
+            // direção do último trecho
+            Vector3 anterior = waypoints.Length >= 2 ? waypoints[waypoints.Length - 2].position : posInicial;
+            Vector3 ultimo = waypoints[waypoints.Length - 1].position;
+            direcaoFinal = new Vector3(ultimo.x - anterior.x, ultimo.y - anterior.y, 0f).normalized;
+
+            distanciaPercorrida = 0f;
+            estado = Estado.Continuando;
+        }
     }
 
-    private void HandleMoving()
+    private void Continuar()
     {
+        float passo = velocidadeIda * Time.deltaTime;
+        transform.position += direcaoFinal * passo;
+        distanciaPercorrida += passo;
+
+        if (distanciaPercorrida >= distanciaExtra)
+            IniciarVolta();
+    }
+
+    private void Voltar()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, posInicial, velocidadeVolta * Time.deltaTime);
+
+        if (transform.position == posInicial)
+        {
+            indice = 0;
+            estado = Estado.Parado;
+        }
+    }
+
+    private Vector3 Alvo(int i)
+    {
+        Vector3 p = waypoints[i].position;
+        return new Vector3(p.x, p.y, transform.position.z);
+    }
+
+    private void IniciarVolta()
+    {
+        SoltarPlayer();
+        estado = Estado.Voltando;
+    }
+
+    private void SoltarPlayer()
+    {
+        if (player == null) return;
+        player.SetParent(null);
+        player = null;
+    }
+
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        if (estado != Estado.Parado) return;
+        if (!col.gameObject.CompareTag("Player")) return;
         if (waypoints == null || waypoints.Length == 0) return;
 
-        Transform target = waypoints[currentWaypointIndex];
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            new Vector3(target.position.x, target.position.y, transform.position.z),
-            moveSpeed * Time.deltaTime
-        );
-
-        if (Vector2.Distance(transform.position, target.position) <= waypointThreshold)
+        foreach (ContactPoint2D contato in col.contacts)
         {
-            currentWaypointIndex++;
-
-            if (currentWaypointIndex >= waypoints.Length)
+            if (contato.point.y >= transform.position.y + margemTopo)
             {
-                // Chegou no último waypoint — empurra o player pra cima e retorna
-                currentState = DroneState.Launching;
-                StartCoroutine(LaunchAndReturn());
-            }
-        }
-    }
-
-    private void HandleReturning()
-    {
-        // Volta suavemente pra posição inicial
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            startPosition,
-            returnSpeed * Time.deltaTime
-        );
-
-        // Chegou na posição inicial — volta a flutuar normalmente
-        if (Vector3.Distance(transform.position, startPosition) <= 0.05f)
-        {
-            transform.position = startPosition;
-            currentWaypointIndex = 0;
-            currentState = DroneState.Floating;
-        }
-    }
-
-    private IEnumerator LaunchAndReturn()
-    {
-        // Calcula a direção horizontal que o drone estava andando
-        // (do waypoint anterior pro último — ou do início pro primeiro se só tiver 1)
-        float horizontalDirection = 0f;
-        if (waypoints.Length >= 2)
-        {
-            Transform prev = waypoints[waypoints.Length - 2];
-            Transform last = waypoints[waypoints.Length - 1];
-            horizontalDirection = Mathf.Sign(last.position.x - prev.position.x);
-        }
-        else if (waypoints.Length == 1)
-        {
-            horizontalDirection = Mathf.Sign(waypoints[0].position.x - startPosition.x);
-        }
-
-        // Empurra o player na direção do movimento do drone + pra cima
-        if (playerOnTop != null)
-        {
-            Rigidbody2D playerRb = playerOnTop.GetComponent<Rigidbody2D>();
-            if (playerRb != null)
-            {
-                ReleasePlayer();
-                playerRb.linearVelocity = new Vector2(
-                    horizontalDirection * launchHorizontalForce,
-                    launchForce
-                );
-            }
-            else
-            {
-                ReleasePlayer();
-            }
-        }
-
-        yield return new WaitForSeconds(returnDelay);
-
-        currentState = DroneState.Returning;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (!collision.gameObject.CompareTag("Player")) return;
-        if (currentState != DroneState.Floating) return;
-
-        foreach (ContactPoint2D contact in collision.contacts)
-        {
-            if (contact.point.y >= transform.position.y + topDetectionHeight * 0.5f)
-            {
-                OnPlayerLanded(collision.transform);
+                player = col.transform;
+                player.SetParent(transform);
+                indice = 0;
+                estado = Estado.Indo;
                 return;
             }
         }
     }
 
-    private void OnCollisionExit2D(Collision2D collision)
+    private void OnCollisionExit2D(Collision2D col)
     {
-        if (!collision.gameObject.CompareTag("Player")) return;
-
-        // Player saiu do drone (pulou durante a rota) — solta e retorna
-        if (playerOnTop != null)
-        {
-            ReleasePlayer();
-
-            if (currentState == DroneState.Moving)
-                StartCoroutine(LaunchAndReturn());
-        }
-    }
-
-    private void OnPlayerLanded(Transform player)
-    {
-        playerOnTop = player;
-        player.SetParent(transform);
-
-        if (waypoints != null && waypoints.Length > 0)
-        {
-            currentWaypointIndex = 0;
-            currentState = DroneState.Moving;
-        }
-    }
-
-    private void ReleasePlayer()
-    {
-        if (playerOnTop == null) return;
-        playerOnTop.SetParent(null);
-        playerOnTop = null;
+        // se o player pular fora durante o trajeto, o drone volta
+        if (col.gameObject.CompareTag("Player") && (estado == Estado.Indo || estado == Estado.Continuando))
+            IniciarVolta();
     }
 
     private void OnDrawGizmos()
     {
-        if (waypoints == null || waypoints.Length == 0) return;
+        if (waypoints == null) return;
 
         Gizmos.color = Color.cyan;
-        for (int i = 0; i < waypoints.Length; i++)
+        Vector3 anterior = Application.isPlaying ? posInicial : transform.position;
+
+        foreach (Transform w in waypoints)
         {
-            if (waypoints[i] == null) continue;
-
-            Gizmos.DrawWireSphere(waypoints[i].position, 0.2f);
-
-            if (i > 0 && waypoints[i - 1] != null)
-                Gizmos.DrawLine(waypoints[i - 1].position, waypoints[i].position);
+            if (w == null) continue;
+            Gizmos.DrawWireSphere(w.position, 0.2f);
+            Gizmos.DrawLine(anterior, w.position);
+            anterior = w.position;
         }
-
-        if (waypoints[0] != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, waypoints[0].position);
-        }
-
-        // Marca o ponto inicial de retorno em verde
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(Application.isPlaying ? startPosition : transform.position, 0.25f);
     }
 }
