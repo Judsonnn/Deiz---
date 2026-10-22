@@ -504,6 +504,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -558,7 +559,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e683bb81b3fe36a46a6558d17d0c0bc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
-  gameplaySceneName: SampleScene
+  gameplaySceneName: Fase1
 --- !u!4 &1618111357
 Transform:
   m_ObjectHideFlags: 0
