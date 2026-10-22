@@ -7309,6 +7309,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 339319183}
   m_CullTransparentMesh: 1
+--- !u!1 &340713923 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6887888256337260996, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+  m_PrefabInstance: {fileID: 602386672}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &340713926
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 340713923}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 1.1444397}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 3.91, y: 5.36}
+    newSize: {x: 0.16, y: 0.16}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 3.91, y: 7.648881}
+  m_EdgeRadius: 0
 --- !u!1001 &340845743
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13109,29 +13160,57 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1317481718}
     m_Modifications:
+    - target: {fileID: 6188720143897973831, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -7119773774819324102, guid: 9f8680cd226fe5349a093792efb69a57, type: 3}
+    - target: {fileID: 6188720143897973831, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6188720143897973831, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6188720143897973831, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6188720143897973831, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+      propertyPath: m_SortingOrder
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6629231971847807679, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+      propertyPath: spriteAtivo
+      value: 
+      objectReference: {fileID: 2982933437430989071, guid: d08bb5da9b3333740a05d001dfb0c663, type: 3}
+    - target: {fileID: 6629231971847807679, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+      propertyPath: spriteRenderer
+      value: 
+      objectReference: {fileID: 6188720143897973831, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
     - target: {fileID: 6887888256337260996, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
       propertyPath: m_Name
       value: Chekpoint
       objectReference: {fileID: 0}
     - target: {fileID: 8965273655522197389, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
       propertyPath: m_LocalScale.x
-      value: 8.513
+      value: 0.25440902
       objectReference: {fileID: 0}
     - target: {fileID: 8965273655522197389, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
       propertyPath: m_LocalScale.y
-      value: 8.513
+      value: 0.25440902
       objectReference: {fileID: 0}
     - target: {fileID: 8965273655522197389, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
       propertyPath: m_LocalScale.z
-      value: 8.513
+      value: 0.25440902
       objectReference: {fileID: 0}
     - target: {fileID: 8965273655522197389, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -30.4119
+      value: -30.402
       objectReference: {fileID: 0}
     - target: {fileID: 8965273655522197389, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.54568
+      value: -2.077
       objectReference: {fileID: 0}
     - target: {fileID: 8965273655522197389, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
       propertyPath: m_LocalPosition.z
@@ -13168,7 +13247,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6887888256337260996, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 340713926}
   m_SourcePrefab: {fileID: 100100000, guid: 5c91117193d593941a8bd3f767874f33, type: 3}
 --- !u!4 &606940436 stripped
 Transform:

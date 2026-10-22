@@ -82,7 +82,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 2982933437430989071, guid: d08bb5da9b3333740a05d001dfb0c663, type: 3}
   m_Color: {r: 0, g: 0.3786391, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -106,5 +106,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
   spriteRenderer: {fileID: 0}
-  spriteInativo: {fileID: 0}
+  spriteInativo: {fileID: -7119773774819324102, guid: 9f8680cd226fe5349a093792efb69a57, type: 3}
   spriteAtivo: {fileID: 0}
