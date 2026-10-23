@@ -28,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -28.54615, y: 3.26388, z: 0}
-  m_LocalScale: {x: 8.513, y: 8.513, z: 8.513}
+  m_LocalScale: {x: 0.254409, y: 0.254409, z: 0.254409}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -80,10 +80,10 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 2982933437430989071, guid: d08bb5da9b3333740a05d001dfb0c663, type: 3}
-  m_Color: {r: 0, g: 0.3786391, b: 1, a: 1}
+  m_Sprite: {fileID: -7119773774819324102, guid: 9f8680cd226fe5349a093792efb69a57, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -107,4 +107,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
   spriteRenderer: {fileID: 0}
   spriteInativo: {fileID: -7119773774819324102, guid: 9f8680cd226fe5349a093792efb69a57, type: 3}
-  spriteAtivo: {fileID: 0}
+  spriteAtivo: {fileID: 2982933437430989071, guid: d08bb5da9b3333740a05d001dfb0c663, type: 3}
