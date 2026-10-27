@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 323154095467118400}
   - component: {fileID: 1589248803688834590}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Rodape_0
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
