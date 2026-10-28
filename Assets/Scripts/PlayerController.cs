@@ -29,6 +29,25 @@ public class PlayerController : MonoBehaviour
     [Range(0f, 1f)]
     public float jumpVolume = 0.5f;
 
+    [Header("Footstep Audio")]
+    [Tooltip("AudioSource separado só para os passos (evita conflito de pitch com o pulo/dano).")]
+    public AudioSource stepAudioSource;
+    [Tooltip("Pode colocar vários sons; um é sorteado a cada passo.")]
+    public AudioClip[] footstepSounds;
+    [Range(0f, 1f)]
+    public float footstepVolume = 0.4f;
+    [Tooltip("Tempo (segundos) entre um passo e outro.")]
+    public float stepInterval = 0.35f;
+    [Tooltip("Variação aleatória de pitch pra não ficar repetitivo.")]
+    public Vector2 stepPitchRange = new Vector2(0.9f, 1.1f);
+
+    [Header("Damage Audio")]
+    // Usa o mesmo audioSource do pulo. É só arrastar o som no Inspector.
+    public AudioClip damageSound;
+
+    [Range(0f, 1f)]
+    public float damageVolume = 0.7f;
+
     [Header("Ground Check")]
     public Transform groundCheck;
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.1f);
@@ -62,6 +81,9 @@ public class PlayerController : MonoBehaviour
     public float coyoteTime = 0.1f;
     private float coyoteTimeCounter;
 
+    private float stepTimer;
+    private int lastStepIndex = -1;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -85,6 +107,7 @@ public class PlayerController : MonoBehaviour
     {
         HandleMovement();
         HandleGroundCheck();
+        HandleFootsteps();
         HandleJump();
         HandleCameraLookAhead();
     }
@@ -146,6 +169,53 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // ── PASSOS ──────────────────────────────────────────────────────────────
+    private void HandleFootsteps()
+    {
+        float move = Input.GetAxisRaw("Horizontal");
+
+        bool walking = isGrounded
+            && Mathf.Abs(move) > 0.01f
+            && !takingDamage;
+
+        if (!walking)
+        {
+            // zera o timer: o primeiro passo toca assim que voltar a andar
+            stepTimer = 0f;
+            return;
+        }
+
+        stepTimer -= Time.deltaTime;
+
+        if (stepTimer <= 0f)
+        {
+            PlayFootstep();
+            stepTimer = stepInterval;
+        }
+    }
+
+    private void PlayFootstep()
+    {
+        if (stepAudioSource == null || footstepSounds == null || footstepSounds.Length == 0)
+            return;
+
+        // sorteia um clip, evitando repetir o mesmo seguido
+        int index = Random.Range(0, footstepSounds.Length);
+
+        if (footstepSounds.Length > 1 && index == lastStepIndex)
+            index = (index + 1) % footstepSounds.Length;
+
+        lastStepIndex = index;
+
+        AudioClip clip = footstepSounds[index];
+        if (clip == null)
+            return;
+
+        stepAudioSource.pitch = Random.Range(stepPitchRange.x, stepPitchRange.y);
+        stepAudioSource.PlayOneShot(clip, footstepVolume);
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     private bool JumpPressed()
     {
         return Input.GetKeyDown(jumpKeyPrimary)
@@ -202,6 +272,19 @@ public class PlayerController : MonoBehaviour
             );
         }
     }
+
+    // ── DANO (áudio) ────────────────────────────────────────────────────────
+    private void PlayDamageSound()
+    {
+        if (audioSource != null && damageSound != null)
+        {
+            audioSource.PlayOneShot(
+                damageSound,
+                damageVolume
+            );
+        }
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     private void HandleGravity()
     {
@@ -275,6 +358,7 @@ public class PlayerController : MonoBehaviour
 
         takingDamage = true;
         TriggerBlink();
+        PlayDamageSound();
 
         float direction =
             transform.position.x > enemy.position.x ? 1f : -1f;
@@ -300,6 +384,8 @@ public class PlayerController : MonoBehaviour
             heart.vida -= damage;
         else
             health -= damage;
+
+        PlayDamageSound();
     }
 
     private void StopTakingDamage()

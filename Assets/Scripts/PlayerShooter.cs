@@ -18,6 +18,14 @@ public class PlayerShooter : MonoBehaviour
     public AudioSource shootAudioSource;
     public AudioClip shootSound;
 
+    [Header("Áudio de Superaquecimento")]
+    [Tooltip("AudioSource separado, só para o som do superaquecimento (Play On Awake desligado).")]
+    public AudioSource overheatAudioSource;
+    [Tooltip("Toca em loop desde que superaquece até esfriar por completo.")]
+    public AudioClip overheatLoopSound;
+    [Range(0f, 1f)]
+    public float overheatVolume = 0.6f;
+
     [Header("Superaquecimento")]
     public float maxHeat = 100f;
     public float heatPerShot = 20f;
@@ -54,6 +62,11 @@ public class PlayerShooter : MonoBehaviour
         HandleHeat();
         HandleShoot();
         UpdateHeatBar();
+    }
+
+    void OnDisable()
+    {
+        StopOverheatSound();
     }
 
     private void HandleShoot()
@@ -115,6 +128,8 @@ public class PlayerShooter : MonoBehaviour
     {
         isOverheated = true;
 
+        StartOverheatSound();
+
         if (fireIcon != null)
         {
             if (blinkCoroutine != null)
@@ -127,6 +142,28 @@ public class PlayerShooter : MonoBehaviour
         cooldownTimer = 0f;
         isCooling = true;
     }
+
+    // ── ÁUDIO DE SUPERAQUECIMENTO ───────────────────────────────────────────
+    private void StartOverheatSound()
+    {
+        if (overheatAudioSource == null || overheatLoopSound == null)
+            return;
+
+        overheatAudioSource.clip = overheatLoopSound;
+        overheatAudioSource.loop = true;
+        overheatAudioSource.volume = overheatVolume;
+        overheatAudioSource.Play();
+    }
+
+    private void StopOverheatSound()
+    {
+        if (overheatAudioSource == null)
+            return;
+
+        if (overheatAudioSource.isPlaying)
+            overheatAudioSource.Stop();
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     private IEnumerator BlinkFireIcon()
     {
@@ -167,6 +204,7 @@ public class PlayerShooter : MonoBehaviour
             if (isOverheated)
             {
                 isOverheated = false;
+                StopOverheatSound();
             }
 
             if (blinkCoroutine != null)
