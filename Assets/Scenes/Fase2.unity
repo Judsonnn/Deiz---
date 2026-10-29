@@ -273,7 +273,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1325566888}
         m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
         m_MethodName: Resume
         m_Mode: 1
@@ -411,7 +411,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1325566888}
         m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
         m_MethodName: GoToMainMenu
         m_Mode: 1
@@ -621,7 +621,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1325566888}
         m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
         m_MethodName: QuitGame
         m_Mode: 1
@@ -5337,6 +5337,13 @@ MonoBehaviour:
   audioSource: {fileID: 950324756}
   jumpSound: {fileID: 8300000, guid: 812a8791e9b2eca4cbcf5f12c55069db, type: 3}
   jumpVolume: 0.42
+  stepAudioSource: {fileID: 0}
+  footstepSounds: []
+  footstepVolume: 0.4
+  stepInterval: 0.35
+  stepPitchRange: {x: 0.9, y: 1.1}
+  damageSound: {fileID: 0}
+  damageVolume: 0.7
   groundCheck: {fileID: 125253190}
   groundCheckSize: {x: 0.3, y: 0.1}
   groundLayer:
@@ -5478,6 +5485,9 @@ MonoBehaviour:
   shootKey2: 108
   shootAudioSource: {fileID: 950324756}
   shootSound: {fileID: 8300000, guid: 8eb24a407dcaad646b022fc4d6db582c, type: 3}
+  overheatAudioSource: {fileID: 0}
+  overheatLoopSound: {fileID: 0}
+  overheatVolume: 0.6
   maxHeat: 100
   heatPerShot: 23
   overheatCooldown: 5
@@ -7899,9 +7909,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1397165429}
+      - m_Target: {fileID: 1325566889}
         m_TargetAssemblyTypeName: DeathScreenManager, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: OnClickReiniciar
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11150,8 +11160,6 @@ GameObject:
   - component: {fileID: 2037399354}
   - component: {fileID: 2037399353}
   - component: {fileID: 2037399352}
-  - component: {fileID: 2037399356}
-  - component: {fileID: 2037399357}
   m_Layer: 8
   m_Name: Canvas
   m_TagString: Ground
@@ -11247,34 +11255,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &2037399356
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2037399351}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db73541a03c305e4db0c240adde18bee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PauseManager
-  pauseKey: 13
-  pauseMenuUI: {fileID: 1434629789}
-  mainMenuSceneName: MainMenu
---- !u!114 &2037399357
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2037399351}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10f0a8a7ac132bc4f8f2e236b3564889, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DeathScreenManager
-  deathPanel: {fileID: 212871686}
 --- !u!1 &2085812103 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2085904721540669578, guid: 21d27096c3061a6419ffdf15a78317b7, type: 3}
