@@ -18,6 +18,9 @@ public class Checkpoint : MonoBehaviour
         else
             Debug.LogWarning("GameManager não encontrado na cena!");
 
+        if (CollectableManager.Instance != null)
+            CollectableManager.Instance.SaveCheckpointSnapshot();
+
         if (!visualAtivado)
         {
             visualAtivado = true;

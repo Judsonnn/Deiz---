@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Collectable : MonoBehaviour
 {
@@ -13,23 +14,44 @@ public class Collectable : MonoBehaviour
     public float rotateAngle = 45f;
 
     private Vector3 startPosition;
-    private bool canBeCollected = false; // << declaração que estava faltando
+    private bool canBeCollected = false;
+    private string uid;
+
+    void Awake()
+    {
+        Vector3 p = transform.position;
+        uid = SceneManager.GetActiveScene().name + "_" + collectableID + "_"
+              + Mathf.RoundToInt(p.x * 100) + "_" + Mathf.RoundToInt(p.y * 100);
+    }
 
     void Start()
     {
         startPosition = transform.position;
         Invoke(nameof(EnableCollection), 0.2f);
-        void Start()
-        {
-            Debug.Log("Collectable iniciado: " + gameObject.name);
-            startPosition = transform.position;
-            Invoke(nameof(EnableCollection), 0.2f);
-        }
+
+        if (CollectableManager.Instance != null)
+            CollectableManager.Instance.OnRestored += Refresh;
+
+        Refresh();
+    }
+
+    void OnDestroy()
+    {
+        if (CollectableManager.Instance != null)
+            CollectableManager.Instance.OnRestored -= Refresh;
     }
 
     private void EnableCollection()
     {
         canBeCollected = true;
+    }
+
+    private void Refresh()
+    {
+        bool collected = CollectableManager.Instance != null
+                      && CollectableManager.Instance.IsCollected(uid);
+
+        gameObject.SetActive(!collected);
     }
 
     void Update()
@@ -53,7 +75,8 @@ public class Collectable : MonoBehaviour
         }
 
         CollectableManager.Instance.Collect(collectableID, value);
-        Destroy(gameObject);
+        CollectableManager.Instance.MarkCollected(uid);
+
+        gameObject.SetActive(false);
     }
-    
 }

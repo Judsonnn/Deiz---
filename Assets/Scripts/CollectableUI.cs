@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────
-// CollectableUI.cs — coloca no objeto
-// de UI que mostra o coletável
-// ─────────────────────────────────────────
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -26,15 +22,21 @@ public class CollectableUI : MonoBehaviour
     void Start()
     {
         iconOriginalPos = iconRect.anchoredPosition;
-        UpdateText(0);
 
         CollectableManager.Instance.OnCollect += OnCollect;
+        CollectableManager.Instance.OnRestored += RefreshText;
+
+        // Mostra o valor atual (importante se a cena recarregar)
+        RefreshText();
     }
 
     void OnDestroy()
     {
         if (CollectableManager.Instance != null)
+        {
             CollectableManager.Instance.OnCollect -= OnCollect;
+            CollectableManager.Instance.OnRestored -= RefreshText;
+        }
     }
 
     private void OnCollect(string id, int total)
@@ -44,6 +46,12 @@ public class CollectableUI : MonoBehaviour
         UpdateText(total);
         StopAllCoroutines();
         StartCoroutine(JumpEffect());
+    }
+
+    // Chamado após a morte: volta o número ao valor do checkpoint, sem o efeito de pulo
+    private void RefreshText()
+    {
+        UpdateText(CollectableManager.Instance.GetCount(collectableID));
     }
 
     private void UpdateText(int value)
