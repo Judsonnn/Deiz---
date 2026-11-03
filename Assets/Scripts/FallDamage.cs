@@ -3,7 +3,7 @@ using UnityEngine;
 public class FallDamage : MonoBehaviour
 {
     [Header("Alturas de queda")]
-    public float mediumFallHeight = 4f;  // altura em unidades do Unity
+    public float mediumFallHeight = 4f;  
     public float lethalFallHeight = 7f;
 
     [Header("Ground Check")]
@@ -13,11 +13,23 @@ public class FallDamage : MonoBehaviour
 
     private Rigidbody2D rb;
     private bool wasGrounded;
-    private float highestPoint; // ponto mais alto durante a queda
+    private float highestPoint; 
+
+ 
+    private bool ignoreLanding = false;   
+    private bool leftGroundSinceBounce = false;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        highestPoint = transform.position.y;
+    }
+
+    
+    public void IgnoreNextLanding()
+    {
+        ignoreLanding = true;
+        leftGroundSinceBounce = false;
         highestPoint = transform.position.y;
     }
 
@@ -32,32 +44,46 @@ public class FallDamage : MonoBehaviour
 
         if (!isGrounded)
         {
-            // Atualiza o ponto mais alto enquanto está no ar
+          
             if (transform.position.y > highestPoint)
                 highestPoint = transform.position.y;
+
+           
+            if (ignoreLanding)
+                leftGroundSinceBounce = true;
         }
 
-        // Acabou de pousar
+        
         if (isGrounded && !wasGrounded)
         {
             float fallHeight = highestPoint - transform.position.y;
 
-            Debug.Log("Altura da queda: " + fallHeight);
+            Debug.Log("Altura da queda: " + fallHeight + (ignoreLanding ? " (perdoada pelo spring)" : ""));
 
-            if (fallHeight >= lethalFallHeight)
+            if (!ignoreLanding)
             {
-                HeartSystem heart = GetComponent<HeartSystem>();
-                if (heart != null)
-                    heart.vida = 0;
-            }
-            else if (fallHeight >= mediumFallHeight)
-            {
-                HeartSystem heart = GetComponent<HeartSystem>();
-                if (heart != null)
-                    heart.vida -= 1;
+                if (fallHeight >= lethalFallHeight)
+                {
+                    HeartSystem heart = GetComponent<HeartSystem>();
+                    if (heart != null)
+                        heart.vida = 0;
+                }
+                else if (fallHeight >= mediumFallHeight)
+                {
+                    HeartSystem heart = GetComponent<HeartSystem>();
+                    if (heart != null)
+                        heart.vida -= 1;
+                }
             }
 
-            // Reseta ao pousar
+        
+            if (ignoreLanding && leftGroundSinceBounce)
+            {
+                ignoreLanding = false;
+                leftGroundSinceBounce = false;
+            }
+
+        
             highestPoint = transform.position.y;
         }
 

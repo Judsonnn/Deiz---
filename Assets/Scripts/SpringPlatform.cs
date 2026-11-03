@@ -28,7 +28,7 @@ public class SpringPlatform : MonoBehaviour
 
     void Update()
     {
-        // Volta suavemente ao tamanho original depois do squash
+        
         if (isSqueezed)
         {
             transform.localScale = Vector3.Lerp(
@@ -49,7 +49,7 @@ public class SpringPlatform : MonoBehaviour
     {
         if (!collision.gameObject.CompareTag("Player")) return;
 
-        // Verifica se o player está vindo de cima (não do lado nem de baixo)
+        
         foreach (ContactPoint2D contact in collision.contacts)
         {
             if (contact.point.y >= transform.position.y + topDetectionHeight * 0.5f)
@@ -64,16 +64,21 @@ public class SpringPlatform : MonoBehaviour
     {
         if (playerRb == null) return;
 
+        
+        FallDamage fallDamage = playerRb.GetComponent<FallDamage>();
+        if (fallDamage != null)
+            fallDamage.IgnoreNextLanding();
+
         float horizontalVelocity = keepHorizontalVelocity ? playerRb.linearVelocity.x : 0f;
         playerRb.linearVelocity = new Vector2(horizontalVelocity, bounceForce);
 
-        // Squash visual no momento do impacto
+      
         TriggerSquash();
     }
 
     private void TriggerSquash()
     {
-        // Achata no Y e estica no X pra dar sensação de compressão
+       
         transform.localScale = new Vector3(
             originalScale.x * (1f + (1f - squashAmount) * 0.5f),
             originalScale.y * squashAmount,
@@ -84,7 +89,7 @@ public class SpringPlatform : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Linha mostrando a altura de detecção do topo
+       
         Gizmos.color = Color.green;
         Gizmos.DrawLine(
             new Vector3(transform.position.x - 0.5f, transform.position.y + topDetectionHeight * 0.5f),
