@@ -72,7 +72,10 @@ public class PlayerShooter : MonoBehaviour
     private void HandleShoot()
     {
         if (isOverheated)
+        {
+            Debug.Log("[Shooter] Bloqueado: isOverheated = true | heat = " + currentHeat + " | isCooling = " + isCooling);
             return;
+        }
 
         if (Input.GetKeyDown(shootKey1) || Input.GetKeyDown(shootKey2))
             Shoot();
@@ -80,8 +83,16 @@ public class PlayerShooter : MonoBehaviour
 
     private void Shoot()
     {
-        if (bulletPrefab == null || firePoint == null)
+        if (bulletPrefab == null)
+        {
+            Debug.LogError("[Shooter] bulletPrefab está nulo/destruído!", this);
             return;
+        }
+        if (firePoint == null)
+        {
+            Debug.LogError("[Shooter] firePoint está nulo/destruído!", this);
+            return;
+        }
 
         GameObject bullet = Instantiate(
             bulletPrefab,
