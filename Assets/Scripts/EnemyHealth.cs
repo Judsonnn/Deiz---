@@ -21,11 +21,15 @@ public class EnemyHealth : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Coroutine blinkCoroutine; // << controla só o piscar
 
+    // ÁUDIO: script de som do inimigo (opcional)
+    private EnemyAudio enemyAudio;
+
     void Start()
     {
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        enemyAudio = GetComponent<EnemyAudio>();
 
         if (healthBar != null)
             healthBar.Hide();
@@ -34,6 +38,10 @@ public class EnemyHealth : MonoBehaviour
     public void TakeDamage(int damage, Transform attacker)
     {
         currentHealth -= damage;
+
+        // ÁUDIO: som de dano (se esse golpe mata, toca por objeto temporário)
+        if (enemyAudio != null)
+            enemyAudio.PlayHurt(currentHealth <= 0);
 
         if (healthBar != null)
         {
