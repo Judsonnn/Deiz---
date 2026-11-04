@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Fase2.unity
     guid: f8eec594958d3fe4c924e6d28ec020fa
+  - enabled: 1
+    path: Assets/Scenes/Cassino.unity
+    guid: 08a26debbc541ec4f9589be477939374
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

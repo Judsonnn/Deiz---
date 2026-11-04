@@ -19,9 +19,9 @@ public class EnemyHealth : MonoBehaviour
     public float blinkDuration = 0.4f;
     public float blinkInterval = 0.08f;
     private SpriteRenderer spriteRenderer;
-    private Coroutine blinkCoroutine; // << controla só o piscar
+    private Coroutine blinkCoroutine; // 
 
-    // ÁUDIO: script de som do inimigo (opcional)
+    
     private EnemyAudio enemyAudio;
 
     void Start()
@@ -39,7 +39,7 @@ public class EnemyHealth : MonoBehaviour
     {
         currentHealth -= damage;
 
-        // ÁUDIO: som de dano (se esse golpe mata, toca por objeto temporário)
+       
         if (enemyAudio != null)
             enemyAudio.PlayHurt(currentHealth <= 0);
 
