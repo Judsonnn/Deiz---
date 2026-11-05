@@ -19,10 +19,10 @@ public class EnemyHealth : MonoBehaviour
     public float blinkDuration = 0.4f;
     public float blinkInterval = 0.08f;
     private SpriteRenderer spriteRenderer;
-    private Coroutine blinkCoroutine; // 
+    private Coroutine blinkCoroutine;
 
-    
     private EnemyAudio enemyAudio;
+    private BossController boss;   // só existe no boss, nos outros fica null
 
     void Start()
     {
@@ -30,6 +30,7 @@ public class EnemyHealth : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         enemyAudio = GetComponent<EnemyAudio>();
+        boss = GetComponentInParent<BossController>();
 
         if (healthBar != null)
             healthBar.Hide();
@@ -37,9 +38,17 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(int damage, Transform attacker)
     {
+        // TESTE: apague estas mensagens quando o tiro funcionar
+        Debug.Log("EnemyHealth: " + gameObject.name + " recebeu " + damage + " de dano");
+
+        if (boss != null && boss.Invulneravel)
+        {
+            Debug.Log("EnemyHealth: dano ignorado, boss invulnerável");
+            return;
+        }
+
         currentHealth -= damage;
 
-       
         if (enemyAudio != null)
             enemyAudio.PlayHurt(currentHealth <= 0);
 
@@ -61,7 +70,14 @@ public class EnemyHealth : MonoBehaviour
         blinkCoroutine = StartCoroutine(BlinkCoroutine());
 
         if (currentHealth <= 0)
+        {
             Die();
+            return;
+        }
+
+        // avisa o boss pra ele reagir (mudança de fase na metade da vida)
+        if (boss != null)
+            boss.OnVidaMudou((float)currentHealth / maxHealth);
     }
 
     private IEnumerator BlinkCoroutine()
@@ -83,6 +99,9 @@ public class EnemyHealth : MonoBehaviour
 
     private void Die()
     {
+        if (boss != null)
+            boss.Parar();
+
         Destroy(gameObject);
     }
 }
