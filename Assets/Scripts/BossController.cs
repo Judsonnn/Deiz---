@@ -1,3 +1,4 @@
+
 using System.Collections;
 using UnityEngine;
 
@@ -32,6 +33,8 @@ public class BossController : MonoBehaviour
     [SerializeField] private float tempoTransicao = 1.5f;
     [SerializeField] private float alturaTeleporte = 4f;
     [SerializeField] private float deslocamentoX = 0f;
+    [SerializeField] private float velocidadeSubida = 18f;
+    [SerializeField] private float velocidadeSubidaHorizontal = 10f;
     [SerializeField] private float tempoNoAr = 0.8f;
     [SerializeField] private float velocidadeQueda = 20f;
 
@@ -170,7 +173,7 @@ public class BossController : MonoBehaviour
 
     // =====================================================
     // FASE 1
-    // PULO NA DIREÇÃO DO JOGADOR + DASH APÓS POUSAR
+    // UM PULO + DASH
     // =====================================================
 
     private IEnumerator Fase1()
@@ -183,13 +186,11 @@ public class BossController : MonoBehaviour
 
         while (true)
         {
-            // Avisa que vai começar o ataque.
             yield return Piscar(tempoAviso);
 
             // Primeiro movimento: pula na direção do jogador.
             yield return PuloAproximacao();
 
-            // Se não estiver no chão, não começa o dash.
             if (!NoChao())
             {
                 yield return new WaitForSeconds(tempoDescanso);
@@ -203,13 +204,16 @@ public class BossController : MonoBehaviour
                 limiteDireito.position.x
             );
 
-            // Segundo movimento: dash até a posição marcada.
+            // Segundo movimento: dash.
             yield return Dash(alvoX);
 
-            // Descanso antes de repetir o ataque.
             yield return new WaitForSeconds(tempoDescanso);
         }
     }
+
+    // =====================================================
+    // PULO DE APROXIMAÇÃO
+    // =====================================================
 
     private IEnumerator PuloAproximacao()
     {
@@ -234,7 +238,6 @@ public class BossController : MonoBehaviour
             if (!noChao)
                 saiuDoChao = true;
 
-            // Só termina quando já saiu do chão e pousou novamente.
             if (saiuDoChao && noChao)
                 break;
 
@@ -251,6 +254,10 @@ public class BossController : MonoBehaviour
         }
     }
 
+    // =====================================================
+    // DASH
+    // =====================================================
+
     private IEnumerator Dash(float alvoX)
     {
         float diferenca = alvoX - rb.position.x;
@@ -262,10 +269,7 @@ public class BossController : MonoBehaviour
 
         sprite.flipX = direcao < 0f;
 
-        // Durante o dash, o boss não recebe tiros.
         invulneravel = true;
-
-        // Durante o dash, o contato causa dano.
         perigoso = true;
 
         float limite = Time.time + tempoMaximoDash;
@@ -295,7 +299,7 @@ public class BossController : MonoBehaviour
 
     // =====================================================
     // FASE 2
-    // ATAQUE AÉREO
+    // DOIS PULOS + ATAQUE AÉREO
     // =====================================================
 
     private IEnumerator Fase2()
@@ -304,63 +308,102 @@ public class BossController : MonoBehaviour
         {
             yield return Piscar(tempoTransicao);
 
+            // Primeiro pulo.
+            yield return PuloAproximacao();
+
+            // Segundo pulo.
+            yield return PuloAproximacao();
+
+            // Ataque aéreo depois dos dois pousos.
             yield return AtaqueAereo();
 
             yield return new WaitForSeconds(tempoDescanso);
         }
     }
 
+    // =====================================================
+    // ATAQUE AÉREO
+    // SUBIDA VISÍVEL + PAUSA + QUEDA
+    // =====================================================
+
     private IEnumerator AtaqueAereo()
     {
         if (player == null)
             yield break;
 
-        // Guarda a posição do jogador no começo do ataque.
         float alvoX = Mathf.Clamp(
             player.position.x + deslocamentoX,
             limiteEsquerdo.position.x,
             limiteDireito.position.x
         );
 
-        float yChao = pe.position.y;
+        float alvoY = rb.position.y + alturaTeleporte;
 
         sprite.flipX = alvoX < transform.position.x;
 
         invulneravel = true;
         perigoso = true;
 
-        // Suspende a física antes de posicionar o boss no alto.
+        // Desliga a gravidade para controlar a subida.
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0f;
 
-        // Posicionamento no alto do ataque.
-        Vector2 posicaoAlta = new Vector2(
-            alvoX,
-            yChao + alturaTeleporte
-        );
+        // Sobe rapidamente em direção ao alvo.
+        float limiteSubida = Time.time + 3f;
 
-        rb.position = posicaoAlta;
-        transform.position = posicaoAlta;
+        while (Time.time < limiteSubida)
+        {
+            float diferencaX = alvoX - rb.position.x;
+            float diferencaY = alvoY - rb.position.y;
 
-        // Pequena pausa no alto antes da descida.
+            if (Mathf.Abs(diferencaX) < 0.1f &&
+                Mathf.Abs(diferencaY) < 0.1f)
+            {
+                break;
+            }
+
+            float velocidadeX = Mathf.Clamp(
+                diferencaX / Time.fixedDeltaTime,
+                -velocidadeSubidaHorizontal,
+                velocidadeSubidaHorizontal
+            );
+
+            float velocidadeY = Mathf.Clamp(
+                diferencaY / Time.fixedDeltaTime,
+                0f,
+                velocidadeSubida
+            );
+
+            rb.linearVelocity = new Vector2(
+                velocidadeX,
+                velocidadeY
+            );
+
+            yield return new WaitForFixedUpdate();
+        }
+
+        // Para o movimento quando chega ao alto.
+        rb.linearVelocity = Vector2.zero;
+
+        // Pausa antes da descida.
         yield return new WaitForSeconds(tempoNoAr);
 
-        // Restaura a gravidade e inicia a queda.
-        rb.gravityScale = gravidadeOriginal;
-
+        // Descida rápida.
         rb.linearVelocity = new Vector2(
             0f,
             -velocidadeQueda
         );
 
-        float limite = Time.time + 3f;
+        float limiteQueda = Time.time + 3f;
 
-        while (!NoChao() && Time.time < limite)
+        while (!NoChao() && Time.time < limiteQueda)
         {
             yield return new WaitForFixedUpdate();
         }
 
         PararHorizontal();
+
+        rb.gravityScale = gravidadeOriginal;
 
         invulneravel = false;
         perigoso = false;
