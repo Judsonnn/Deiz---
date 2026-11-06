@@ -12,6 +12,7 @@ public class BossController : MonoBehaviour
     [SerializeField] private Transform pe;
     [SerializeField] private LayerMask camadaChao;
     [SerializeField] private BossHealthBar barraVida;
+    [SerializeField] private TrailRenderer rastro;
 
     [Header("Configurações gerais")]
     [SerializeField] private float raioVisao = 10f;
@@ -66,6 +67,8 @@ public class BossController : MonoBehaviour
 
         if (sprite != null)
             alphaOriginal = sprite.color.a;
+
+        DefinirRastro(false);
     }
 
     private void Start()
@@ -144,6 +147,7 @@ public class BossController : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
 
+        DefinirRastro(false);
         DefinirAlpha(alphaOriginal);
     }
 
@@ -172,8 +176,7 @@ public class BossController : MonoBehaviour
     }
 
     // =====================================================
-    // FASE 1
-    // UM PULO + DASH
+    // FASE 1 - UM PULO + DASH
     // =====================================================
 
     private IEnumerator Fase1()
@@ -188,7 +191,6 @@ public class BossController : MonoBehaviour
         {
             yield return Piscar(tempoAviso);
 
-            // Primeiro movimento: pula na direção do jogador.
             yield return PuloAproximacao();
 
             if (!NoChao())
@@ -197,14 +199,12 @@ public class BossController : MonoBehaviour
                 continue;
             }
 
-            // Marca a posição do jogador depois do pouso.
             float alvoX = Mathf.Clamp(
                 player.position.x,
                 limiteEsquerdo.position.x,
                 limiteDireito.position.x
             );
 
-            // Segundo movimento: dash.
             yield return Dash(alvoX);
 
             yield return new WaitForSeconds(tempoDescanso);
@@ -222,6 +222,8 @@ public class BossController : MonoBehaviour
             : -1f;
 
         sprite.flipX = direcao < 0f;
+
+        DefinirRastro(true);
 
         rb.linearVelocity = new Vector2(
             direcao * velocidadePuloHorizontal,
@@ -245,6 +247,7 @@ public class BossController : MonoBehaviour
         }
 
         PararHorizontal();
+        DefinirRastro(false);
 
         if (!NoChao())
         {
@@ -272,6 +275,8 @@ public class BossController : MonoBehaviour
         invulneravel = true;
         perigoso = true;
 
+        DefinirRastro(true);
+
         float limite = Time.time + tempoMaximoDash;
 
         while (Time.time < limite && !Chegou(direcao, alvoX))
@@ -293,13 +298,16 @@ public class BossController : MonoBehaviour
 
         PararHorizontal();
 
-        invulneravel = false;
+        DefinirRastro(false);
+
+        // Depois do dash, o boss deixa de causar dano
+        // e volta a receber tiros.
         perigoso = false;
+        invulneravel = false;
     }
 
     // =====================================================
-    // FASE 2
-    // DOIS PULOS + ATAQUE AÉREO
+    // FASE 2 - DOIS PULOS + ATAQUE AÉREO
     // =====================================================
 
     private IEnumerator Fase2()
@@ -308,13 +316,10 @@ public class BossController : MonoBehaviour
         {
             yield return Piscar(tempoTransicao);
 
-            // Primeiro pulo.
             yield return PuloAproximacao();
 
-            // Segundo pulo.
             yield return PuloAproximacao();
 
-            // Ataque aéreo depois dos dois pousos.
             yield return AtaqueAereo();
 
             yield return new WaitForSeconds(tempoDescanso);
@@ -322,8 +327,7 @@ public class BossController : MonoBehaviour
     }
 
     // =====================================================
-    // ATAQUE AÉREO
-    // SUBIDA VISÍVEL + PAUSA + QUEDA
+    // ATAQUE AÉREO - SUBIDA + PAUSA + QUEDA
     // =====================================================
 
     private IEnumerator AtaqueAereo()
@@ -344,11 +348,11 @@ public class BossController : MonoBehaviour
         invulneravel = true;
         perigoso = true;
 
-        // Desliga a gravidade para controlar a subida.
+        DefinirRastro(true);
+
         rb.linearVelocity = Vector2.zero;
         rb.gravityScale = 0f;
 
-        // Sobe rapidamente em direção ao alvo.
         float limiteSubida = Time.time + 3f;
 
         while (Time.time < limiteSubida)
@@ -382,13 +386,15 @@ public class BossController : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
 
-        // Para o movimento quando chega ao alto.
         rb.linearVelocity = Vector2.zero;
 
-        // Pausa antes da descida.
+        // Pausa no alto.
+        DefinirRastro(false);
         yield return new WaitForSeconds(tempoNoAr);
 
-        // Descida rápida.
+        // Queda rápida.
+        DefinirRastro(true);
+
         rb.linearVelocity = new Vector2(
             0f,
             -velocidadeQueda
@@ -405,6 +411,8 @@ public class BossController : MonoBehaviour
 
         rb.gravityScale = gravidadeOriginal;
 
+        DefinirRastro(false);
+
         invulneravel = false;
         perigoso = false;
     }
@@ -415,7 +423,8 @@ public class BossController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!perigoso || Time.time < proximoDano)
+        // Só causa dano quando está em um ataque ativo.
+        if (!perigoso || !invulneravel || Time.time < proximoDano)
             return;
 
         if (meuCollider == null)
@@ -489,6 +498,17 @@ public class BossController : MonoBehaviour
         sprite.color = cor;
     }
 
+    private void DefinirRastro(bool ativo)
+    {
+        if (rastro == null)
+            return;
+
+        rastro.emitting = ativo;
+
+        if (!ativo)
+            rastro.Clear();
+    }
+
     private bool NoChao()
     {
         return Physics2D.OverlapCircle(
@@ -496,11 +516,6 @@ public class BossController : MonoBehaviour
             0.15f,
             camadaChao
         );
-    }
-
-    private void Virar(float direcao)
-    {
-        sprite.flipX = direcao < 0f;
     }
 
     private void OnDrawGizmosSelected()
