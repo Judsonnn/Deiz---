@@ -1,3 +1,4 @@
+
 using System.Collections;
 using UnityEngine;
 
@@ -30,19 +31,16 @@ public class PlayerController : MonoBehaviour
     public float jumpVolume = 0.5f;
 
     [Header("Footstep Audio")]
-    [Tooltip("AudioSource separado só para os passos (evita conflito de pitch com o pulo/dano).")]
     public AudioSource stepAudioSource;
-    [Tooltip("Pode colocar vários sons; um é sorteado a cada passo.")]
     public AudioClip[] footstepSounds;
+
     [Range(0f, 1f)]
     public float footstepVolume = 0.4f;
-    [Tooltip("Tempo (segundos) entre um passo e outro.")]
+
     public float stepInterval = 0.35f;
-    [Tooltip("Variação aleatória de pitch pra não ficar repetitivo.")]
     public Vector2 stepPitchRange = new Vector2(0.9f, 1.1f);
 
     [Header("Damage Audio")]
-    // Usa o mesmo audioSource do pulo. É só arrastar o som no Inspector.
     public AudioClip damageSound;
 
     [Range(0f, 1f)]
@@ -64,22 +62,26 @@ public class PlayerController : MonoBehaviour
     [Header("Visual")]
     public SpriteRenderer spriteRenderer;
 
+    [Header("Animator")]
+    public Animator animator;
+
     [Header("Dano Visual")]
     public float blinkDuration = 1f;
     public float blinkInterval = 0.1f;
 
     public int health = 3;
 
+    public float coyoteTime = 0.1f;
+    private float coyoteTimeCounter;
+
     private Rigidbody2D rb;
     private bool isGrounded;
     private bool wasGrounded;
     private int jumpCount;
     private bool takingDamage = false;
+
     private Vector3 cameraTargetPosition;
     private PlayerShooter shooter;
-
-    public float coyoteTime = 0.1f;
-    private float coyoteTimeCounter;
 
     private float stepTimer;
     private int lastStepIndex = -1;
@@ -88,16 +90,20 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = normalGravity;
+
         transform.localScale = Vector3.one;
+
         shooter = GetComponent<PlayerShooter>();
 
-        // ── CHECKPOINT ──────────────────────────────────────────────────────
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
+
+        // CHECKPOINT
         if (GameManager.Instance != null &&
             GameManager.Instance.TryGetCheckpoint(out Vector3 checkpointPos))
         {
             transform.position = checkpointPos;
         }
-        // ────────────────────────────────────────────────────────────────────
 
         if (cameraTarget != null)
             cameraTargetPosition = cameraTarget.localPosition;
@@ -107,6 +113,7 @@ public class PlayerController : MonoBehaviour
     {
         HandleMovement();
         HandleGroundCheck();
+        HandleAnimation();
         HandleFootsteps();
         HandleJump();
         HandleCameraLookAhead();
@@ -117,6 +124,7 @@ public class PlayerController : MonoBehaviour
         HandleGravity();
     }
 
+    // MOVIMENTAÇÃO
     private void HandleMovement()
     {
         float move = Input.GetAxisRaw("Horizontal");
@@ -136,12 +144,31 @@ public class PlayerController : MonoBehaviour
         }
 
         if (!takingDamage)
+        {
             rb.linearVelocity = new Vector2(
                 move * speed,
                 rb.linearVelocity.y
             );
+        }
     }
 
+    // ANIMAÇÕES
+    private void HandleAnimation()
+    {
+        if (animator == null)
+            return;
+
+        float move = Input.GetAxisRaw("Horizontal");
+
+        bool walking = isGrounded
+            && Mathf.Abs(move) > 0.01f
+            && !takingDamage;
+
+        animator.SetBool("IsWalking", walking);
+        animator.SetBool("IsGrounded", isGrounded);
+    }
+
+    // VERIFICAÇÃO DO CHÃO
     private void HandleGroundCheck()
     {
         wasGrounded = isGrounded;
@@ -169,7 +196,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ── PASSOS ──────────────────────────────────────────────────────────────
+    // PASSOS
     private void HandleFootsteps()
     {
         float move = Input.GetAxisRaw("Horizontal");
@@ -180,7 +207,6 @@ public class PlayerController : MonoBehaviour
 
         if (!walking)
         {
-            // zera o timer: o primeiro passo toca assim que voltar a andar
             stepTimer = 0f;
             return;
         }
@@ -196,10 +222,11 @@ public class PlayerController : MonoBehaviour
 
     private void PlayFootstep()
     {
-        if (stepAudioSource == null || footstepSounds == null || footstepSounds.Length == 0)
+        if (stepAudioSource == null ||
+            footstepSounds == null ||
+            footstepSounds.Length == 0)
             return;
 
-        // sorteia um clip, evitando repetir o mesmo seguido
         int index = Random.Range(0, footstepSounds.Length);
 
         if (footstepSounds.Length > 1 && index == lastStepIndex)
@@ -208,14 +235,19 @@ public class PlayerController : MonoBehaviour
         lastStepIndex = index;
 
         AudioClip clip = footstepSounds[index];
+
         if (clip == null)
             return;
 
-        stepAudioSource.pitch = Random.Range(stepPitchRange.x, stepPitchRange.y);
+        stepAudioSource.pitch = Random.Range(
+            stepPitchRange.x,
+            stepPitchRange.y
+        );
+
         stepAudioSource.PlayOneShot(clip, footstepVolume);
     }
-    // ────────────────────────────────────────────────────────────────────────
 
+    // PULO
     private bool JumpPressed()
     {
         return Input.GetKeyDown(jumpKeyPrimary)
@@ -235,7 +267,6 @@ public class PlayerController : MonoBehaviour
         if (!JumpPressed())
             return;
 
-        // Primeiro pulo
         if (coyoteTimeCounter > 0f && jumpCount <= 1)
         {
             rb.linearVelocity = new Vector2(
@@ -248,7 +279,6 @@ public class PlayerController : MonoBehaviour
 
             PlayJumpSound();
         }
-        // Segundo pulo
         else if (jumpCount == 1)
         {
             rb.linearVelocity = new Vector2(
@@ -265,27 +295,17 @@ public class PlayerController : MonoBehaviour
     private void PlayJumpSound()
     {
         if (audioSource != null && jumpSound != null)
-        {
-            audioSource.PlayOneShot(
-                jumpSound,
-                jumpVolume
-            );
-        }
+            audioSource.PlayOneShot(jumpSound, jumpVolume);
     }
 
-    // ── DANO (áudio) ────────────────────────────────────────────────────────
+    // SOM DE DANO
     private void PlayDamageSound()
     {
         if (audioSource != null && damageSound != null)
-        {
-            audioSource.PlayOneShot(
-                damageSound,
-                damageVolume
-            );
-        }
+            audioSource.PlayOneShot(damageSound, damageVolume);
     }
-    // ────────────────────────────────────────────────────────────────────────
 
+    // GRAVIDADE
     private void HandleGravity()
     {
         if (rb.linearVelocity.y < 0)
@@ -310,6 +330,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // CÂMERA
     private void HandleCameraLookAhead()
     {
         if (cameraTarget == null)
@@ -349,6 +370,7 @@ public class PlayerController : MonoBehaviour
         );
     }
 
+    // DANO
     public void TakeDamage(int damage, Transform enemy)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
@@ -357,6 +379,7 @@ public class PlayerController : MonoBehaviour
             heart.vida -= damage;
 
         takingDamage = true;
+
         TriggerBlink();
         PlayDamageSound();
 
@@ -393,6 +416,7 @@ public class PlayerController : MonoBehaviour
         takingDamage = false;
     }
 
+    // EFEITO VISUAL DE DANO
     private void TriggerBlink()
     {
         StopCoroutine(nameof(BlinkCoroutine));
