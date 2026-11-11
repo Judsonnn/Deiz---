@@ -1,4 +1,3 @@
-
 using System.Collections;
 using UnityEngine;
 
@@ -20,24 +19,24 @@ public class BossController : MonoBehaviour
     [SerializeField] private float tempoAviso = 0.8f;
     [SerializeField] private float tempoDescanso = 2.5f;
 
-    [Header("Fase 1 - Pulo")]
-    [SerializeField] private float forcaPulo = 8f;
-    [SerializeField] private float velocidadePuloHorizontal = 3f;
-    [SerializeField] private float tempoMaximoPulo = 2.5f;
+    [Header("Tiro")]
+    [SerializeField] private BossProjectile projetilPrefab;
+    [SerializeField] private Vector2 deslocamentoTiro = new Vector2(0.8f, 0f);
+    [SerializeField] private float velocidadeProjetil = 10f;
+    [SerializeField] private int danoProjetil = 1;
+    [SerializeField] private float tempoAntesDoTiro = 0.2f;
+    [SerializeField] private float distanciaParaDash = 3f;
+    [SerializeField] private float tempoMaximoEspera = 2f;
 
-    [Header("Fase 1 - Dash")]
+    [Header("Dash")]
     [SerializeField] private float velocidadeDash = 16f;
-    [SerializeField] private float distanciaAlemDoPlayer = 4f;
     [SerializeField] private float tempoMaximoDash = 1.2f;
 
-    [Header("Fase 2 - Ataque aéreo")]
+    [Header("Fase 2")]
     [SerializeField] private float tempoTransicao = 1.5f;
-    [SerializeField] private float alturaTeleporte = 4f;
-    [SerializeField] private float deslocamentoX = 0f;
-    [SerializeField] private float velocidadeSubida = 18f;
-    [SerializeField] private float velocidadeSubidaHorizontal = 10f;
-    [SerializeField] private float tempoNoAr = 0.8f;
-    [SerializeField] private float velocidadeQueda = 20f;
+    [Range(0.1f, 0.9f)]
+    [SerializeField] private float fracaoPrimeiroDash = 0.5f;
+    [SerializeField] private float pausaEntreDashes = 0.3f;
 
     [Header("Dano ao jogador")]
     [SerializeField] private int danoContato = 1;
@@ -175,10 +174,6 @@ public class BossController : MonoBehaviour
         }
     }
 
-    // =====================================================
-    // FASE 1 - UM PULO + DASH
-    // =====================================================
-
     private IEnumerator Fase1()
     {
         while (!acordou &&
@@ -191,13 +186,7 @@ public class BossController : MonoBehaviour
         {
             yield return Piscar(tempoAviso);
 
-            yield return PuloAproximacao();
-
-            if (!NoChao())
-            {
-                yield return new WaitForSeconds(tempoDescanso);
-                continue;
-            }
+            yield return AtirarEEsperar();
 
             float alvoX = Mathf.Clamp(
                 player.position.x,
@@ -205,63 +194,72 @@ public class BossController : MonoBehaviour
                 limiteDireito.position.x
             );
 
-            yield return Dash(alvoX);
+            yield return Dash(alvoX, true);
 
             yield return new WaitForSeconds(tempoDescanso);
         }
     }
 
-    // =====================================================
-    // PULO DE APROXIMAÇÃO
-    // =====================================================
-
-    private IEnumerator PuloAproximacao()
+    private IEnumerator Fase2()
     {
+        while (true)
+        {
+            yield return Piscar(tempoTransicao);
+
+            yield return AtirarEEsperar();
+
+            yield return DashDuplo();
+
+            yield return new WaitForSeconds(tempoDescanso);
+        }
+    }
+
+    private IEnumerator AtirarEEsperar()
+    {
+        if (player == null)
+            yield break;
+
         float direcao = player.position.x >= transform.position.x
             ? 1f
             : -1f;
 
         sprite.flipX = direcao < 0f;
 
-        DefinirRastro(true);
+        yield return new WaitForSeconds(tempoAntesDoTiro);
 
-        rb.linearVelocity = new Vector2(
-            direcao * velocidadePuloHorizontal,
-            forcaPulo
+        if (projetilPrefab == null)
+            yield break;
+
+        Vector2 origem = (Vector2)transform.position + new Vector2(
+            direcao * deslocamentoTiro.x,
+            deslocamentoTiro.y
         );
 
-        bool saiuDoChao = false;
-        float limite = Time.time + tempoMaximoPulo;
+        Vector2 sentido = ((Vector2)player.position - origem).normalized;
 
-        while (Time.time < limite)
+        if (sentido.sqrMagnitude < 0.01f)
+            sentido = new Vector2(direcao, 0f);
+
+        BossProjectile projetil = Instantiate(
+            projetilPrefab,
+            origem,
+            Quaternion.identity
+        );
+
+        projetil.Init(sentido, velocidadeProjetil, danoProjetil);
+
+        float limite = Time.time + tempoMaximoEspera;
+
+        while (projetil != null
+               && player != null
+               && Time.time < limite
+               && Vector2.Distance(projetil.transform.position, player.position) > distanciaParaDash)
         {
-            bool noChao = NoChao();
-
-            if (!noChao)
-                saiuDoChao = true;
-
-            if (saiuDoChao && noChao)
-                break;
-
-            yield return new WaitForFixedUpdate();
-        }
-
-        PararHorizontal();
-        DefinirRastro(false);
-
-        if (!NoChao())
-        {
-            Debug.LogWarning(
-                "Boss: o tempo máximo do pulo acabou antes do pouso. Verifique o chão e a LayerMask."
-            );
+            yield return null;
         }
     }
 
-    // =====================================================
-    // DASH
-    // =====================================================
-
-    private IEnumerator Dash(float alvoX)
+    private IEnumerator Dash(float alvoX, bool encerrar)
     {
         float diferenca = alvoX - rb.position.x;
 
@@ -300,130 +298,41 @@ public class BossController : MonoBehaviour
 
         DefinirRastro(false);
 
-        // Depois do dash, o boss deixa de causar dano
-        // e volta a receber tiros.
-        perigoso = false;
-        invulneravel = false;
-    }
-
-    // =====================================================
-    // FASE 2 - DOIS PULOS + ATAQUE AÉREO
-    // =====================================================
-
-    private IEnumerator Fase2()
-    {
-        while (true)
+        if (encerrar)
         {
-            yield return Piscar(tempoTransicao);
-
-            yield return PuloAproximacao();
-
-            yield return PuloAproximacao();
-
-            yield return AtaqueAereo();
-
-            yield return new WaitForSeconds(tempoDescanso);
+            perigoso = false;
+            invulneravel = false;
         }
     }
 
-    // =====================================================
-    // ATAQUE AÉREO - SUBIDA + PAUSA + QUEDA
-    // =====================================================
-
-    private IEnumerator AtaqueAereo()
+    private IEnumerator DashDuplo()
     {
-        if (player == null)
-            yield break;
+        float inicioX = rb.position.x;
 
         float alvoX = Mathf.Clamp(
-            player.position.x + deslocamentoX,
+            player.position.x,
             limiteEsquerdo.position.x,
             limiteDireito.position.x
         );
 
-        float alvoY = rb.position.y + alturaTeleporte;
-
-        sprite.flipX = alvoX < transform.position.x;
-
-        invulneravel = true;
-        perigoso = true;
-
-        DefinirRastro(true);
-
-        rb.linearVelocity = Vector2.zero;
-        rb.gravityScale = 0f;
-
-        float limiteSubida = Time.time + 3f;
-
-        while (Time.time < limiteSubida)
-        {
-            float diferencaX = alvoX - rb.position.x;
-            float diferencaY = alvoY - rb.position.y;
-
-            if (Mathf.Abs(diferencaX) < 0.1f &&
-                Mathf.Abs(diferencaY) < 0.1f)
-            {
-                break;
-            }
-
-            float velocidadeX = Mathf.Clamp(
-                diferencaX / Time.fixedDeltaTime,
-                -velocidadeSubidaHorizontal,
-                velocidadeSubidaHorizontal
-            );
-
-            float velocidadeY = Mathf.Clamp(
-                diferencaY / Time.fixedDeltaTime,
-                0f,
-                velocidadeSubida
-            );
-
-            rb.linearVelocity = new Vector2(
-                velocidadeX,
-                velocidadeY
-            );
-
-            yield return new WaitForFixedUpdate();
-        }
-
-        rb.linearVelocity = Vector2.zero;
-
-        // Pausa no alto.
-        DefinirRastro(false);
-        yield return new WaitForSeconds(tempoNoAr);
-
-        // Queda rápida.
-        DefinirRastro(true);
-
-        rb.linearVelocity = new Vector2(
-            0f,
-            -velocidadeQueda
+        float primeiroAlvoX = Mathf.Lerp(
+            inicioX,
+            alvoX,
+            fracaoPrimeiroDash
         );
 
-        float limiteQueda = Time.time + 3f;
+        yield return Dash(primeiroAlvoX, false);
 
-        while (!NoChao() && Time.time < limiteQueda)
-        {
-            yield return new WaitForFixedUpdate();
-        }
+        yield return new WaitForSeconds(pausaEntreDashes);
 
-        PararHorizontal();
+        yield return Dash(alvoX, true);
 
-        rb.gravityScale = gravidadeOriginal;
-
-        DefinirRastro(false);
-
-        invulneravel = false;
         perigoso = false;
+        invulneravel = false;
     }
-
-    // =====================================================
-    // DANO AO JOGADOR
-    // =====================================================
 
     private void FixedUpdate()
     {
-        // Só causa dano quando está em um ataque ativo.
         if (!perigoso || !invulneravel || Time.time < proximoDano)
             return;
 
@@ -449,10 +358,6 @@ public class BossController : MonoBehaviour
             }
         }
     }
-
-    // =====================================================
-    // FUNÇÕES AUXILIARES
-    // =====================================================
 
     private bool Chegou(float direcao, float alvoX)
     {

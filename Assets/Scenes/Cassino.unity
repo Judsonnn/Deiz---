@@ -7653,7 +7653,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 918.85443, y: -5.2928, z: -10}
+  m_LocalPosition: {x: 918.86414, y: -5.29282, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11987,7 +11987,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 763.9103, y: 10267.2}
+  m_AnchoredPosition: {x: 763.9103, y: 10267.199}
   m_SizeDelta: {x: 900, y: 506}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1434629794
@@ -13275,19 +13275,18 @@ MonoBehaviour:
   vidaFase2: 0.5
   tempoAviso: 1
   tempoDescanso: 3
-  forcaPulo: 8
-  velocidadePuloHorizontal: 3
-  tempoMaximoPulo: 2.5
+  projetilPrefab: {fileID: 5596599045005289579, guid: 835dbd42d65393b47b960e7b9eb8a2df, type: 3}
+  deslocamentoTiro: {x: 0.8, y: 0}
+  velocidadeProjetil: 10
+  danoProjetil: 1
+  tempoAntesDoTiro: 0.2
+  distanciaParaDash: 3
+  tempoMaximoEspera: 2
   velocidadeDash: 20
-  distanciaAlemDoPlayer: 7
   tempoMaximoDash: 1.5
   tempoTransicao: 2
-  alturaTeleporte: 4
-  deslocamentoX: 0
-  velocidadeSubida: 18
-  velocidadeSubidaHorizontal: 10
-  tempoNoAr: 0.5
-  velocidadeQueda: 20
+  fracaoPrimeiroDash: 0.5
+  pausaEntreDashes: 0.3
   danoContato: 1
   intervaloDanoContato: 1
 --- !u!50 &1690398977
