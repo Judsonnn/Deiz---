@@ -19,9 +19,7 @@ public class PlayerShooter : MonoBehaviour
     public AudioClip shootSound;
 
     [Header("Áudio de Superaquecimento")]
-    [Tooltip("AudioSource separado, só para o som do superaquecimento (Play On Awake desligado).")]
     public AudioSource overheatAudioSource;
-    [Tooltip("Toca em loop desde que superaquece até esfriar por completo.")]
     public AudioClip overheatLoopSound;
     [Range(0f, 1f)]
     public float overheatVolume = 0.6f;
@@ -51,10 +49,18 @@ public class PlayerShooter : MonoBehaviour
     private float cooldownStartHeat = 0f;
     private bool isCooling = false;
 
+    private float firePointOffsetX;
+
     void Start()
     {
         if (fireIcon != null)
             fireIcon.SetActive(true);
+
+        if (firePoint != null)
+        {
+            firePointOffsetX = Mathf.Abs(firePoint.localPosition.x);
+            ApplyFirePointSide();
+        }
     }
 
     void Update()
@@ -116,6 +122,11 @@ public class PlayerShooter : MonoBehaviour
             );
         }
 
+        SpriteRenderer bulletRenderer = bullet.GetComponentInChildren<SpriteRenderer>();
+
+        if (bulletRenderer != null)
+            bulletRenderer.flipX = !facingRight;
+
         currentHeat += heatPerShot;
 
         currentHeat = Mathf.Clamp(
@@ -154,7 +165,6 @@ public class PlayerShooter : MonoBehaviour
         isCooling = true;
     }
 
-    // ── ÁUDIO DE SUPERAQUECIMENTO ───────────────────────────────────────────
     private void StartOverheatSound()
     {
         if (overheatAudioSource == null || overheatLoopSound == null)
@@ -174,7 +184,6 @@ public class PlayerShooter : MonoBehaviour
         if (overheatAudioSource.isPlaying)
             overheatAudioSource.Stop();
     }
-    // ────────────────────────────────────────────────────────────────────────
 
     private IEnumerator BlinkFireIcon()
     {
@@ -245,8 +254,19 @@ public class PlayerShooter : MonoBehaviour
         );
     }
 
+    private void ApplyFirePointSide()
+    {
+        if (firePoint == null)
+            return;
+
+        Vector3 pos = firePoint.localPosition;
+        pos.x = facingRight ? firePointOffsetX : -firePointOffsetX;
+        firePoint.localPosition = pos;
+    }
+
     public void SetFacing(bool right)
     {
         facingRight = right;
+        ApplyFirePointSide();
     }
 }

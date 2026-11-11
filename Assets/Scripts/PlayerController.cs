@@ -1,4 +1,3 @@
-
 using System.Collections;
 using UnityEngine;
 
@@ -79,6 +78,7 @@ public class PlayerController : MonoBehaviour
     private bool wasGrounded;
     private int jumpCount;
     private bool takingDamage = false;
+    private bool facingRight = true;
 
     private Vector3 cameraTargetPosition;
     private PlayerShooter shooter;
@@ -95,10 +95,15 @@ public class PlayerController : MonoBehaviour
 
         shooter = GetComponent<PlayerShooter>();
 
+        if (shooter == null)
+            shooter = GetComponentInChildren<PlayerShooter>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
 
-        // CHECKPOINT
         if (GameManager.Instance != null &&
             GameManager.Instance.TryGetCheckpoint(out Vector3 checkpointPos))
         {
@@ -107,6 +112,8 @@ public class PlayerController : MonoBehaviour
 
         if (cameraTarget != null)
             cameraTargetPosition = cameraTarget.localPosition;
+
+        shooter?.SetFacing(facingRight);
     }
 
     void Update()
@@ -119,28 +126,30 @@ public class PlayerController : MonoBehaviour
         HandleCameraLookAhead();
     }
 
+    void LateUpdate()
+    {
+        if (spriteRenderer != null)
+            spriteRenderer.flipX = !facingRight;
+    }
+
     void FixedUpdate()
     {
         HandleGravity();
     }
 
-    // MOVIMENTAÇÃO
     private void HandleMovement()
     {
         float move = Input.GetAxisRaw("Horizontal");
 
-        if (spriteRenderer != null)
+        if (move > 0 && !facingRight)
         {
-            if (move > 0)
-            {
-                spriteRenderer.flipX = false;
-                shooter?.SetFacing(true);
-            }
-            else if (move < 0)
-            {
-                spriteRenderer.flipX = true;
-                shooter?.SetFacing(false);
-            }
+            facingRight = true;
+            shooter?.SetFacing(true);
+        }
+        else if (move < 0 && facingRight)
+        {
+            facingRight = false;
+            shooter?.SetFacing(false);
         }
 
         if (!takingDamage)
@@ -152,7 +161,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ANIMAÇÕES
     private void HandleAnimation()
     {
         if (animator == null)
@@ -168,7 +176,6 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("IsGrounded", isGrounded);
     }
 
-    // VERIFICAÇÃO DO CHÃO
     private void HandleGroundCheck()
     {
         wasGrounded = isGrounded;
@@ -196,7 +203,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // PASSOS
     private void HandleFootsteps()
     {
         float move = Input.GetAxisRaw("Horizontal");
@@ -247,7 +253,6 @@ public class PlayerController : MonoBehaviour
         stepAudioSource.PlayOneShot(clip, footstepVolume);
     }
 
-    // PULO
     private bool JumpPressed()
     {
         return Input.GetKeyDown(jumpKeyPrimary)
@@ -298,14 +303,12 @@ public class PlayerController : MonoBehaviour
             audioSource.PlayOneShot(jumpSound, jumpVolume);
     }
 
-    // SOM DE DANO
     private void PlayDamageSound()
     {
         if (audioSource != null && damageSound != null)
             audioSource.PlayOneShot(damageSound, damageVolume);
     }
 
-    // GRAVIDADE
     private void HandleGravity()
     {
         if (rb.linearVelocity.y < 0)
@@ -330,7 +333,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // CÂMERA
     private void HandleCameraLookAhead()
     {
         if (cameraTarget == null)
@@ -370,7 +372,6 @@ public class PlayerController : MonoBehaviour
         );
     }
 
-    // DANO
     public void TakeDamage(int damage, Transform enemy)
     {
         HeartSystem heart = GetComponent<HeartSystem>();
@@ -416,7 +417,6 @@ public class PlayerController : MonoBehaviour
         takingDamage = false;
     }
 
-    // EFEITO VISUAL DE DANO
     private void TriggerBlink()
     {
         StopCoroutine(nameof(BlinkCoroutine));
