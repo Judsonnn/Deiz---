@@ -7653,7 +7653,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 918.86414, y: -5.29282, z: -10}
+  m_LocalPosition: {x: 918.85443, y: -5.2928, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -13277,16 +13277,16 @@ MonoBehaviour:
   tempoDescanso: 3
   projetilPrefab: {fileID: 5596599045005289579, guid: 835dbd42d65393b47b960e7b9eb8a2df, type: 3}
   deslocamentoTiro: {x: 0.8, y: 0}
-  velocidadeProjetil: 10
+  velocidadeProjetil: 8
   danoProjetil: 1
   tempoAntesDoTiro: 0.2
   distanciaParaDash: 3
   tempoMaximoEspera: 2
   velocidadeDash: 20
   tempoMaximoDash: 1.5
-  tempoTransicao: 2
+  tempoTransicao: 1
   fracaoPrimeiroDash: 0.5
-  pausaEntreDashes: 0.3
+  pausaEntreDashes: 0.1
   danoContato: 1
   intervaloDanoContato: 1
 --- !u!50 &1690398977
@@ -13450,7 +13450,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3264f136ec3ed3049ba310d77e9354d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
-  maxHealth: 50
+  maxHealth: 30
   healthBar: {fileID: 0}
   knockbackForce: 0
   canBeKnockedBack: 0

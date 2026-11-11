@@ -13204,155 +13204,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4627622141258379182, guid: 19e1267a796c4144c9ea0313470aa656, type: 3}
   m_PrefabInstance: {fileID: 364180267}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &365219299
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5870657726210122347, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_Name
-      value: Placa De PropagandaEstrelas C_0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 114.391304
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 5.219941
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8810166182970880531, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5870657726210122347, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 365219301}
-  m_SourcePrefab: {fileID: 100100000, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
---- !u!1 &365219300 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5870657726210122347, guid: 5ef088db9ee89d243b989991ac38e6ff, type: 3}
-  m_PrefabInstance: {fileID: 365219299}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &365219301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 365219300}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
-  m_ComponentVersion: 4
-  m_LightType: 1
-  m_BlendStyleIndex: 0
-  m_Light2DProvider:
-    rid: -2
-  m_SelectionSources:
-    rid: 3062804230402736134
-  m_FalloffIntensity: 0.5
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
-  m_LightVolumeIntensity: 1
-  m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000af006e63
-  m_LightCookieSprite: {fileID: 0}
-  m_DeprecatedPointLightCookieSprite: {fileID: 0}
-  m_LightOrder: 0
-  m_AlphaBlendOnOverlap: 0
-  m_OverlapOperation: 0
-  m_NormalMapDistance: 3
-  m_NormalMapQuality: 2
-  m_UseNormalMap: 0
-  m_ShadowsEnabled: 1
-  m_ShadowIntensity: 0.75
-  m_ShadowSoftness: 0.3
-  m_ShadowSoftnessFalloffIntensity: 0.5
-  m_ShadowVolumeIntensityEnabled: 0
-  m_ShadowVolumeIntensity: 0.75
-  m_LocalBounds:
-    m_Center: {x: 0.42334986, y: -2.2414498, z: 0}
-    m_Extent: {x: 9.50555, y: 4.34455, z: 0}
-  m_PointLightInnerAngle: 360
-  m_PointLightOuterAngle: 360
-  m_PointLightInnerRadius: 0
-  m_PointLightOuterRadius: 1
-  m_ShapeLightParametricSides: 5
-  m_ShapeLightParametricAngleOffset: 0
-  m_ShapeLightParametricRadius: 1
-  m_ShapeLightFalloffSize: 0.5
-  m_ShapeLightFalloffOffset: {x: 0, y: 0}
-  m_ShapePath:
-  - {x: -8.583694, y: -6.085095, z: 0}
-  - {x: 9.428795, y: -5.9748626, z: 0}
-  - {x: 4.394867, y: 1.6023216, z: 0}
-  - {x: -4.2478943, y: 1.5288334, z: 0}
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 3062804230402736134
-      type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
-      data:
-        m_SelectedHashCode: 1
-        m_SelectedSource:
-          rid: 3062804230402736136
-        m_Provider2DCache:
-          rid: 3062804230402736135
-    - rid: 3062804230402736135
-      type: {class: 'Provider2DCache`1[[UnityEngine.Rendering.Universal.Light2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]', ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
-      data:
-        m_Cache: []
-    - rid: 3062804230402736136
-      type: {class: Light2DSource_BuiltIn, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
-      data:
-        m_HashCode: 4
-        m_SourceType: 1
-        m_MenuPriority: 0
-        m_MenuName:
-          m_Text: Freeform
-          m_Image: {fileID: 2800000, guid: 68e5bb6e60bebc046b26d3c3100a523b, type: 3}
-          m_Tooltip: 
-          m_TextWithWhitespace: "Freeform\u200B"
 --- !u!1 &366093432
 GameObject:
   m_ObjectHideFlags: 0
@@ -19378,7 +19229,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -93.51772, y: -5.9186916, z: -10}
+  m_LocalPosition: {x: -94.49657, y: -5.918181, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -76779,6 +76630,63 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6968800608215713763, guid: 0087a12d2c422bc42af752edbcfaa9fa, type: 3}
   m_PrefabInstance: {fileID: 4779206817256454342}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &9073699261133739077
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7377689252694204692, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_Name
+      value: Placa De PropagandaEstrelas C_0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 114.391304
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.219941
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9076639237898074956, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: df027022675d6d74396c68fcc13c54cf, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -76854,7 +76762,7 @@ SceneRoots:
   - {fileID: 616974242}
   - {fileID: 1804718700}
   - {fileID: 1488480654}
-  - {fileID: 365219299}
+  - {fileID: 9073699261133739077}
   - {fileID: 7923367232281111216}
   - {fileID: 1861774285}
   - {fileID: 1837473287}
