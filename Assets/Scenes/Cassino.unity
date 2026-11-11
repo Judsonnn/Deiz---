@@ -9927,11 +9927,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5045444268938546677, guid: f888039bf1c668e47b32a761daede1f5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 927.91144
+      value: 927.6
       objectReference: {fileID: 0}
     - target: {fileID: 5045444268938546677, guid: f888039bf1c668e47b32a761daede1f5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.9589186
+      value: 5.63
       objectReference: {fileID: 0}
     - target: {fileID: 5045444268938546677, guid: f888039bf1c668e47b32a761daede1f5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -10504,11 +10504,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5616750034031119953, guid: ba5f6e477e8053142a48d5ac2f00ce60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 927.50073
+      value: 927.46
       objectReference: {fileID: 0}
     - target: {fileID: 5616750034031119953, guid: ba5f6e477e8053142a48d5ac2f00ce60, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.9
+      value: 3.92
       objectReference: {fileID: 0}
     - target: {fileID: 5616750034031119953, guid: ba5f6e477e8053142a48d5ac2f00ce60, type: 3}
       propertyPath: m_LocalPosition.z
@@ -13274,19 +13274,18 @@ MonoBehaviour:
   raioVisao: 10
   vidaFase2: 0.5
   tempoAviso: 1
-  tempoDescanso: 3
+  tempoDescanso: 2.5
   projetilPrefab: {fileID: 5596599045005289579, guid: 835dbd42d65393b47b960e7b9eb8a2df, type: 3}
   deslocamentoTiro: {x: 0.8, y: 0}
-  velocidadeProjetil: 8
+  velocidadeProjetil: 7
   danoProjetil: 1
-  tempoAntesDoTiro: 0.2
-  distanciaParaDash: 3
-  tempoMaximoEspera: 2
-  velocidadeDash: 20
+  tempoAntesDoTiro: 0.3
+  tempoAteODash: 2
+  velocidadeDash: 18
   tempoMaximoDash: 1.5
   tempoTransicao: 1
-  fracaoPrimeiroDash: 0.5
-  pausaEntreDashes: 0.1
+  fracaoPrimeiroDash: 0.432
+  pausaEntreDashes: 0.01
   danoContato: 1
   intervaloDanoContato: 1
 --- !u!50 &1690398977
@@ -13431,8 +13430,8 @@ Transform:
   m_GameObject: {fileID: 1690398975}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 941.09, y: 1.17, z: 0}
-  m_LocalScale: {x: 1.538554, y: 1.3127787, z: 0.8409}
+  m_LocalPosition: {x: 941.09, y: 1.1787, z: 0}
+  m_LocalScale: {x: 2.098823, y: 1.7908311, z: 1.1471163}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 234356793}
@@ -13872,7 +13871,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 323154095467118400, guid: 0af91b44b373f2f44ad2190b0447d086, type: 3}
       propertyPath: m_LocalScale.x
-      value: 9.057431
+      value: 9.196917
       objectReference: {fileID: 0}
     - target: {fileID: 323154095467118400, guid: 0af91b44b373f2f44ad2190b0447d086, type: 3}
       propertyPath: m_LocalScale.y
@@ -13880,7 +13879,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 323154095467118400, guid: 0af91b44b373f2f44ad2190b0447d086, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 958.9
+      value: 958.6422
       objectReference: {fileID: 0}
     - target: {fileID: 323154095467118400, guid: 0af91b44b373f2f44ad2190b0447d086, type: 3}
       propertyPath: m_LocalPosition.y

@@ -25,8 +25,7 @@ public class BossController : MonoBehaviour
     [SerializeField] private float velocidadeProjetil = 10f;
     [SerializeField] private int danoProjetil = 1;
     [SerializeField] private float tempoAntesDoTiro = 0.2f;
-    [SerializeField] private float distanciaParaDash = 3f;
-    [SerializeField] private float tempoMaximoEspera = 2f;
+    [SerializeField] private float tempoAteODash = 2f;
 
     [Header("Dash")]
     [SerializeField] private float velocidadeDash = 16f;
@@ -228,17 +227,15 @@ public class BossController : MonoBehaviour
         yield return new WaitForSeconds(tempoAntesDoTiro);
 
         if (projetilPrefab == null)
+        {
+            Debug.LogWarning("BossController: Projetil Prefab não foi configurado!");
             yield break;
+        }
 
         Vector2 origem = (Vector2)transform.position + new Vector2(
             direcao * deslocamentoTiro.x,
             deslocamentoTiro.y
         );
-
-        Vector2 sentido = ((Vector2)player.position - origem).normalized;
-
-        if (sentido.sqrMagnitude < 0.01f)
-            sentido = new Vector2(direcao, 0f);
 
         BossProjectile projetil = Instantiate(
             projetilPrefab,
@@ -246,17 +243,9 @@ public class BossController : MonoBehaviour
             Quaternion.identity
         );
 
-        projetil.Init(sentido, velocidadeProjetil, danoProjetil);
+        projetil.Init(direcao, velocidadeProjetil, danoProjetil);
 
-        float limite = Time.time + tempoMaximoEspera;
-
-        while (projetil != null
-               && player != null
-               && Time.time < limite
-               && Vector2.Distance(projetil.transform.position, player.position) > distanciaParaDash)
-        {
-            yield return null;
-        }
+        yield return new WaitForSeconds(tempoAteODash);
     }
 
     private IEnumerator Dash(float alvoX, bool encerrar)

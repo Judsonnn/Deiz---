@@ -22,7 +22,7 @@ public class EnemyHealth : MonoBehaviour
     private Coroutine blinkCoroutine;
 
     private EnemyAudio enemyAudio;
-    private BossController boss;   // só existe no boss, nos outros fica null
+    private BossController boss;
 
     void Start()
     {
@@ -38,14 +38,8 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(int damage, Transform attacker)
     {
-        // TESTE: apague estas mensagens quando o tiro funcionar
-        Debug.Log("EnemyHealth: " + gameObject.name + " recebeu " + damage + " de dano");
-
         if (boss != null && boss.Invulneravel)
-        {
-            Debug.Log("EnemyHealth: dano ignorado, boss invulnerável");
             return;
-        }
 
         currentHealth -= damage;
 
@@ -65,7 +59,6 @@ public class EnemyHealth : MonoBehaviour
             rb.AddForce(new Vector2(direction, 0.3f).normalized * knockbackForce, ForceMode2D.Impulse);
         }
 
-        // Para só a coroutine do piscar, não todas
         if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
         blinkCoroutine = StartCoroutine(BlinkCoroutine());
 
@@ -75,7 +68,6 @@ public class EnemyHealth : MonoBehaviour
             return;
         }
 
-        // avisa o boss pra ele reagir (mudança de fase na metade da vida)
         if (boss != null)
             boss.OnVidaMudou((float)currentHealth / maxHealth);
     }
