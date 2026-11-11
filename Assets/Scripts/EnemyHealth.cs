@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using System.Collections;
 
@@ -24,13 +25,16 @@ public class EnemyHealth : MonoBehaviour
     private EnemyAudio enemyAudio;
     private BossController boss;
 
-    void Start()
+    private void Start()
     {
         currentHealth = maxHealth;
+
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         enemyAudio = GetComponent<EnemyAudio>();
-        boss = GetComponentInParent<BossController>();
+
+        // O BossController está no mesmo GameObject.
+        boss = GetComponent<BossController>();
 
         if (healthBar != null)
             healthBar.Hide();
@@ -54,12 +58,20 @@ public class EnemyHealth : MonoBehaviour
 
         if (canBeKnockedBack && rb != null && attacker != null)
         {
-            float direction = transform.position.x > attacker.position.x ? 1f : -1f;
+            float direction =
+                transform.position.x > attacker.position.x ? 1f : -1f;
+
             rb.linearVelocity = Vector2.zero;
-            rb.AddForce(new Vector2(direction, 0.3f).normalized * knockbackForce, ForceMode2D.Impulse);
+
+            rb.AddForce(
+                new Vector2(direction, 0.3f).normalized * knockbackForce,
+                ForceMode2D.Impulse
+            );
         }
 
-        if (blinkCoroutine != null) StopCoroutine(blinkCoroutine);
+        if (blinkCoroutine != null)
+            StopCoroutine(blinkCoroutine);
+
         blinkCoroutine = StartCoroutine(BlinkCoroutine());
 
         if (currentHealth <= 0)
@@ -82,6 +94,7 @@ public class EnemyHealth : MonoBehaviour
                 spriteRenderer.enabled = !spriteRenderer.enabled;
 
             yield return new WaitForSeconds(blinkInterval);
+
             elapsed += blinkInterval;
         }
 
@@ -91,8 +104,25 @@ public class EnemyHealth : MonoBehaviour
 
     private void Die()
     {
+        // Somente o boss abre a tela de vitória.
         if (boss != null)
+        {
             boss.Parar();
+
+            VictoryScreenManager victory =
+                FindFirstObjectByType<VictoryScreenManager>();
+
+            if (victory != null)
+            {
+                victory.ShowVictoryScreen();
+            }
+            else
+            {
+                Debug.LogError(
+                    "VictoryScreenManager não encontrado na cena!"
+                );
+            }
+        }
 
         Destroy(gameObject);
     }
