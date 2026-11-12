@@ -1678,8 +1678,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
   gameplaySceneName: Fase1
-  configPanel: {fileID: 0}
-  volumeSlider: {fileID: 0}
+  configPanel: {fileID: 153764687}
+  volumeSlider: {fileID: 157313879}
 --- !u!4 &1618111357
 Transform:
   m_ObjectHideFlags: 0
