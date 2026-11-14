@@ -266,6 +266,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7167977692654278463, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
   m_PrefabInstance: {fileID: 2402486456483410378}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &153764689 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4492577733588135264, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+  m_PrefabInstance: {fileID: 2402486456483410378}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 153764687}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e683bb81b3fe36a46a6558d17d0c0bc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenuController
 --- !u!114 &157313879 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 577844530565078104, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
@@ -1274,9 +1285,21 @@ PrefabInstance:
       value: ConfigPainel
       objectReference: {fileID: 0}
     - target: {fileID: 6525962611858881601, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6525962611858881601, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1618111356}
+    - target: {fileID: 6525962611858881601, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: FecharConfiguracoes
+      objectReference: {fileID: 0}
+    - target: {fileID: 6525962611858881601, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MainMenuController, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 7167977692654278463, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1457,7 +1480,11 @@ PrefabInstance:
     - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1618111356}
+      objectReference: {fileID: 153764689}
+    - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: AbrirConfiguracoes
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

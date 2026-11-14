@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,6 +8,7 @@ public class GameManager : MonoBehaviour
     [Header("Checkpoint")]
     private bool hasCheckpoint = false;
     private Vector3 checkpointPosition;
+    private string checkpointSceneName;
 
     [Header("Musica de Gameplay")]
     public AudioSource musicaGameplay;
@@ -39,7 +39,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Verifica a cena em que o jogo começou
         ControlarMusica(SceneManager.GetActiveScene().name);
     }
 
@@ -53,6 +52,11 @@ public class GameManager : MonoBehaviour
 
     private void AoCarregarCena(Scene cena, LoadSceneMode modo)
     {
+        if (hasCheckpoint && cena.name != checkpointSceneName)
+        {
+            hasCheckpoint = false;
+        }
+
         ControlarMusica(cena.name);
     }
 
@@ -80,6 +84,7 @@ public class GameManager : MonoBehaviour
     {
         hasCheckpoint = true;
         checkpointPosition = position;
+        checkpointSceneName = SceneManager.GetActiveScene().name;
 
         Debug.Log("Checkpoint salvo em: " + position);
     }
@@ -87,7 +92,7 @@ public class GameManager : MonoBehaviour
     public bool TryGetCheckpoint(out Vector3 position)
     {
         position = checkpointPosition;
-        return hasCheckpoint;
+        return hasCheckpoint && checkpointSceneName == SceneManager.GetActiveScene().name;
     }
 
     public void ClearCheckpoint()
