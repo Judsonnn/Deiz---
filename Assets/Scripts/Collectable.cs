@@ -13,6 +13,10 @@ public class Collectable : MonoBehaviour
     public float rotateSpeed = 2f;
     public float rotateAngle = 45f;
 
+    [Header("Som")]
+    public AudioClip collectSound;
+    [Range(0f, 1f)] public float collectVolume = 1f;
+
     private Vector3 startPosition;
     private bool canBeCollected = false;
     private string uid;
@@ -77,6 +81,15 @@ public class Collectable : MonoBehaviour
         CollectableManager.Instance.Collect(collectableID, value);
         CollectableManager.Instance.MarkCollected(uid);
 
+        PlayCollectSound();
+
         gameObject.SetActive(false);
+    }
+
+    private void PlayCollectSound()
+    {
+        if (collectSound == null) return;
+        Vector3 pos = Camera.main != null ? Camera.main.transform.position : transform.position;
+        AudioSource.PlayClipAtPoint(collectSound, pos, collectVolume);
     }
 }
