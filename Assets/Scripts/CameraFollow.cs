@@ -5,7 +5,7 @@ public class CameraFollow : MonoBehaviour
     public Transform player;
     public float smoothSpeedHorizontal = 5f;
     public float smoothSpeedUp = 4f;
-    public float smoothSpeedDown = 12f; // desce rápido para mostrar a plataforma
+    public float smoothSpeedDown = 12f; 
     public Vector3 offset;
 
     void LateUpdate()
@@ -15,10 +15,10 @@ public class CameraFollow : MonoBehaviour
 
         Vector3 desiredPosition = player.position + offset;
 
-        // Velocidade diferente para cada direção
+     
         float speedY = desiredPosition.y < transform.position.y
-            ? smoothSpeedDown  // descendo — rápido
-            : smoothSpeedUp;   // subindo — suave
+            ? smoothSpeedDown  
+            : smoothSpeedUp;   
 
         float newX = Mathf.Lerp(transform.position.x, desiredPosition.x, smoothSpeedHorizontal * Time.deltaTime);
         float newY = Mathf.Lerp(transform.position.y, desiredPosition.y, speedY * Time.deltaTime);
