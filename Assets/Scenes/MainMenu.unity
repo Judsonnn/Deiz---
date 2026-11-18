@@ -404,7 +404,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -294615266033042253, guid: b25becac4e9b39d4881bd7c45afe6f2d, type: 3}
+  m_Sprite: {fileID: -418876639816492076, guid: 05696113ad6c3b6478a7e44011d66c38, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1089,7 +1089,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2623761127183196756, guid: 6039ef7c6918e094faf834419ff63773, type: 3}
+  m_Sprite: {fileID: -3241446430866700455, guid: be9056fba536dd4429d245f984e8881b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1280,9 +1280,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1073420223}
     m_Modifications:
+    - target: {fileID: 332559730252847114, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1226118832522834153, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
       propertyPath: m_Name
       value: ConfigPainel
+      objectReference: {fileID: 0}
+    - target: {fileID: 1226118832522834153, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3304877070533495170, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -5703251522092404898, guid: b65fd655cba24044daa151ddde9b998e, type: 3}
+    - target: {fileID: 4557119810476053975, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6525962611858881601, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
@@ -1477,6 +1493,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5598495021997363211, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 7111294492685666490, guid: 5ea104bac9a1207408202ff4e3e02c75, type: 3}
     - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

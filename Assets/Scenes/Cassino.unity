@@ -249,7 +249,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -5457465145180839035, guid: a8f00a56eefc143469152cf8200b0d92, type: 3}
+  m_Sprite: {fileID: 1523570549771569974, guid: fcd9c6a36120c33479b4138c6b3e1625, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7262,7 +7262,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 918.86414, y: -5.29282, z: -10}
+  m_LocalPosition: {x: 918.85455, y: -5.29279, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7359,6 +7359,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 3304877070533495170, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -5703251522092404898, guid: b65fd655cba24044daa151ddde9b998e, type: 3}
     - target: {fileID: 4557119810476053975, guid: 40867e9bc6cf5254dac709498b07af40, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -8921,7 +8925,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -4824802457941397013, guid: 5de8487e6ddf09c4a93a7f5c70e3e8f7, type: 3}
+  m_Sprite: {fileID: -5703251522092404898, guid: b65fd655cba24044daa151ddde9b998e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9834,7 +9838,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -294615266033042253, guid: b25becac4e9b39d4881bd7c45afe6f2d, type: 3}
+  m_Sprite: {fileID: -418876639816492076, guid: 05696113ad6c3b6478a7e44011d66c38, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9960,6 +9964,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5598495021997363211, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 7111294492685666490, guid: 5ea104bac9a1207408202ff4e3e02c75, type: 3}
     - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 6
