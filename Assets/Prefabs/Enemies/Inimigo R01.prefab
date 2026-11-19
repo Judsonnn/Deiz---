@@ -155,6 +155,13 @@ MonoBehaviour:
   accelerateDistance: 5
   heightIgnoreThreshold: 1
   aboveHorizontalRange: 1
+  loseDistance: 10
+  loseTime: 3
+  redetectDelay: 1
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  alertInterval: 4
 --- !u!70 &5132364846102052449
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -210,6 +217,9 @@ MonoBehaviour:
   canBeKnockedBack: 1
   blinkDuration: 0.4
   blinkInterval: 0.08
+  hurtSound: {fileID: 8300000, guid: dd2ffcc4c4106a241a458c9e834c3a87, type: 3}
+  hurtVolume: 1
+  sfxGroup: {fileID: 0}
 --- !u!114 &1081839156752881513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -222,18 +232,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 030e1a02088d4c2408a146c066dd6de2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAudio
-  alertSource: {fileID: -1402291804805370855}
+  alertSource: {fileID: 0}
   stepSource: {fileID: 0}
-  alertSound: {fileID: 8300000, guid: 71a0f3ad9690bc54797aa382bb8133cb, type: 3}
-  alertVolume: 1
-  footstepSounds: []
-  footstepVolume: 0.6
+  alertSound: {fileID: 8300000, guid: ee768b9e22dfaf04b9ecb64b7ca6c604, type: 3}
+  alertVolume: 0.706
+  footstepSounds:
+  - {fileID: 0}
+  footstepVolume: 0.557
   walkStepInterval: 0.5
   runStepInterval: 0.28
   minMoveSpeed: 0.1
   maxVerticalSpeed: 1
   pitchVariation: 0.1
-  hurtSounds: []
+  hurtSounds:
+  - {fileID: 8300000, guid: dd2ffcc4c4106a241a458c9e834c3a87, type: 3}
   hurtVolume: 1
   hurtPitchVariation: 0.1
 --- !u!82 &-1402291804805370855
@@ -247,7 +259,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 71a0f3ad9690bc54797aa382bb8133cb, type: 3}
+  m_Resource: {fileID: 8300000, guid: dd2ffcc4c4106a241a458c9e834c3a87, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -394,8 +406,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3942057283126922672}
   - {fileID: 3945107229113025128}
+  - {fileID: 3942057283126922672}
   m_Father: {fileID: 2053768560561840635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3034206897072570576
@@ -440,8 +452,8 @@ Transform:
   m_GameObject: {fileID: 5280539258552140526}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.001, y: 0.0068, z: 0}
-  m_LocalScale: {x: 6.028979, y: 0.92295927, z: 3.0487752}
+  m_LocalPosition: {x: 0.015, y: 0.0004, z: 0}
+  m_LocalScale: {x: 0.10565208, y: 0.26003525, z: 0.2018079}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3532246302907077368}
@@ -495,7 +507,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 3255604901860030803, guid: ed949cad06cfcaa4c93658cc2bd48c86, type: 3}
   m_Color: {r: 0.039649326, g: 0.9339623, b: 0.053283732, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -532,8 +544,8 @@ Transform:
   m_GameObject: {fileID: 5362391404595191925}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4.95629, y: 0.8625607, z: 3.029239}
+  m_LocalPosition: {x: 0.015, y: 0.0004, z: 0}
+  m_LocalScale: {x: 0.1056521, y: 0.2600352, z: 0.2018079}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3532246302907077368}
@@ -587,8 +599,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 3255604901860030803, guid: ed949cad06cfcaa4c93658cc2bd48c86, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

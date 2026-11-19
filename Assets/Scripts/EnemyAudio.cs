@@ -62,7 +62,6 @@ public class EnemyAudio : MonoBehaviour
     {
         if (Time.deltaTime <= 0f) return;
 
-        // Mede a velocidade pela posição, então funciona com Rigidbody ou com transform
         Vector3 delta = transform.position - lastPosition;
         float speedX = Mathf.Abs(delta.x) / Time.deltaTime;
         float speedY = Mathf.Abs(delta.y) / Time.deltaTime;
@@ -86,25 +85,27 @@ public class EnemyAudio : MonoBehaviour
         }
     }
 
-    // Chame quando o inimigo VÊ o player e começa a perseguir
     public void StartChase()
     {
-        if (isChasing) return; // só toca o alerta uma vez por perseguição
+        if (isChasing) return;
 
         isChasing = true;
-
-        if (alertSound != null)
-            alertSource.PlayOneShot(alertSound, alertVolume);
+        PlayAlert();
     }
 
-    // Chame quando o inimigo perde o player e volta a patrulhar
     public void StopChase()
     {
         isChasing = false;
     }
 
-    // Chame quando o inimigo leva dano.
-    // willDie = true quando esse golpe vai destruir o inimigo.
+    public void PlayAlert()
+    {
+        if (alertSound == null) return;
+
+        alertSource.pitch = 1f;
+        alertSource.PlayOneShot(alertSound, alertVolume);
+    }
+
     public void PlayHurt(bool willDie = false)
     {
         if (hurtSounds == null || hurtSounds.Length == 0) return;
@@ -114,7 +115,6 @@ public class EnemyAudio : MonoBehaviour
 
         if (willDie)
         {
-            // O inimigo será destruído já: usa um objeto temporário para o som não cortar
             AudioSource.PlayClipAtPoint(clip, transform.position, hurtVolume);
             return;
         }
@@ -127,7 +127,6 @@ public class EnemyAudio : MonoBehaviour
     {
         if (footstepSounds == null || footstepSounds.Length == 0) return;
 
-        // Escolhe um clip diferente do último
         int index = Random.Range(0, footstepSounds.Length);
         if (footstepSounds.Length > 1 && index == lastClipIndex)
             index = (index + 1) % footstepSounds.Length;

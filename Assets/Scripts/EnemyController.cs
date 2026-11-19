@@ -17,12 +17,7 @@ public class EnemyController : MonoBehaviour
 
     [Header("Patrulha")]
     public bool patrolRight = true;
-
-    // Distância que o inimigo pode andar para cada lado.
-    // Exemplo: 2 = aproximadamente 2 unidades para cada lado.
     public float patrolDistance = 2f;
-
-    // Velocidade durante a patrulha
     public float patrolSpeed = 1.5f;
 
     private Vector3 patrolStartPosition;
@@ -34,30 +29,34 @@ public class EnemyController : MonoBehaviour
     public float accelerateDistance = 5f;
 
     [Header("Player Acima")]
-    // Diferença de altura mínima pra considerar que o player
-    // está "acima" do inimigo (ex: pulou em cima dele).
     public float heightIgnoreThreshold = 1f;
-
-    // Distância horizontal máxima pra considerar que o player
-    // está "em cima" do inimigo. Se estiver mais longe que isso
-    // horizontalmente, o inimigo continua perseguindo normalmente
-    // mesmo com o player mais alto.
     public float aboveHorizontalRange = 1f;
+
+    [Header("Perder o Player")]
+    public float loseDistance = 10f;
+    public float loseTime = 3f;
+    public float redetectDelay = 1f;
+    public LayerMask obstacleLayer;
+
+    [Header("Áudio")]
+    public float alertInterval = 4f;
+
+    private EnemyAudio enemyAudio;
+    private float nextAlertTime;
+    private float lostTimer;
+    private float blockDetectUntil;
 
     private float currentSpeed;
 
     void Start()
     {
-        // Guarda a posição inicial para definir os limites da patrulha
         patrolStartPosition = transform.position;
-
-        // Define o lado inicial
         patrolDirection = patrolRight ? 1 : -1;
+        enemyAudio = GetComponent<EnemyAudio>();
     }
 
     void Update()
     {
-        // Se ainda não detectou o player, fica patrulhando
         if (!playerDetected)
         {
             Patrol();
@@ -65,9 +64,56 @@ public class EnemyController : MonoBehaviour
         }
 
         if (player == null)
+        {
+            LosePlayer();
             return;
+        }
+
+        if (CheckLostPlayer())
+        {
+            LosePlayer();
+            return;
+        }
 
         AttackPlayer();
+    }
+
+    private bool CheckLostPlayer()
+    {
+        float distance = Vector2.Distance(
+            transform.position,
+            player.position
+        );
+
+        if (distance > loseDistance)
+            return true;
+
+        if (!HasLineOfSight(player))
+        {
+            lostTimer += Time.deltaTime;
+
+            if (lostTimer >= loseTime)
+                return true;
+        }
+        else
+        {
+            lostTimer = 0f;
+        }
+
+        return false;
+    }
+
+    private void LosePlayer()
+    {
+        playerDetected = false;
+        player = null;
+        lostTimer = 0f;
+        blockDetectUntil = Time.time + redetectDelay;
+
+        if (enemyAudio != null)
+        {
+            enemyAudio.StopChase();
+        }
     }
 
     private void Patrol()
@@ -82,28 +128,23 @@ public class EnemyController : MonoBehaviour
         if (!groundAhead)
             return;
 
-        // Limites da patrulha
         float rightLimit = patrolStartPosition.x + patrolDistance;
         float leftLimit = patrolStartPosition.x - patrolDistance;
 
-        // Se chegou ao limite direito, começa a voltar
         if (transform.position.x >= rightLimit)
         {
             patrolDirection = -1;
         }
 
-        // Se chegou ao limite esquerdo, começa a voltar
         if (transform.position.x <= leftLimit)
         {
             patrolDirection = 1;
         }
 
-        // Move o inimigo
         transform.Translate(
             Vector2.right * patrolDirection * patrolSpeed * Time.deltaTime
         );
 
-        // Vira o sprite de acordo com a direção
         if (patrolDirection > 0)
         {
             transform.localScale = new Vector3(-1, 1, 1);
@@ -129,9 +170,6 @@ public class EnemyController : MonoBehaviour
             player.position.x - transform.position.x
         );
 
-        // Só ignora a perseguição se o player estiver ACIMA
-        // e PERTO horizontalmente (ou seja, realmente em cima dele).
-        // Se estiver longe, mesmo mais alto, continua perseguindo normal.
         bool playerIsAbove =
             heightDifference > heightIgnoreThreshold &&
             distanceToPlayer <= aboveHorizontalRange;
@@ -141,7 +179,16 @@ public class EnemyController : MonoBehaviour
             return;
         }
 
-        // Calcula a velocidade baseada na distância até o player
+        if (Time.time >= nextAlertTime)
+        {
+            if (enemyAudio != null)
+            {
+                enemyAudio.PlayAlert();
+            }
+
+            nextAlertTime = Time.time + alertInterval;
+        }
+
         float proximityFactor = 1f - Mathf.Clamp01(
             distanceToPlayer / accelerateDistance
         );
@@ -187,8 +234,36 @@ public class EnemyController : MonoBehaviour
 
     public void DetectPlayer(Transform target)
     {
+        if (playerDetected)
+            return;
+
+        if (Time.time < blockDetectUntil)
+            return;
+
+        if (Vector2.Distance(transform.position, target.position) > loseDistance)
+            return;
+
         player = target;
         playerDetected = true;
+        lostTimer = 0f;
+        nextAlertTime = Time.time + alertInterval;
+
+        if (enemyAudio != null)
+        {
+            enemyAudio.StartChase();
+        }
+    }
+
+    public bool HasLineOfSight(Transform target)
+    {
+        if (obstacleLayer.value == 0)
+            return true;
+
+        return !Physics2D.Linecast(
+            transform.position,
+            target.position,
+            obstacleLayer
+        );
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -199,10 +274,6 @@ public class EnemyController : MonoBehaviour
         if (!collision.gameObject.CompareTag("Player"))
             return;
 
-        // Verifica a normal do primeiro ponto de contato.
-        // Se o player caiu em cima do inimigo, a normal aponta
-        // predominantemente pra cima (Y positivo) — nesse caso,
-        // não causa dano, só deixa o player "pisando" nele.
         ContactPoint2D contact = collision.GetContact(0);
 
         if (contact.normal.y > 0.5f)
@@ -242,7 +313,6 @@ public class EnemyController : MonoBehaviour
             groundCheck.position + Vector3.down * groundCheckDistance
         );
 
-        // Mostra visualmente a área da patrulha
         Gizmos.color = Color.yellow;
 
         Gizmos.DrawLine(
@@ -250,11 +320,13 @@ public class EnemyController : MonoBehaviour
             transform.position + Vector3.right * patrolDistance
         );
 
-        // Mostra a zona de "player acima" pra ajudar a calibrar
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(
             transform.position + Vector3.up * heightIgnoreThreshold,
             aboveHorizontalRange
         );
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, loseDistance);
     }
 }
