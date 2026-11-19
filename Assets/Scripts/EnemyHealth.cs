@@ -1,5 +1,5 @@
-
 using UnityEngine;
+using UnityEngine.Audio;
 using System.Collections;
 
 public class EnemyHealth : MonoBehaviour
@@ -22,6 +22,11 @@ public class EnemyHealth : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Coroutine blinkCoroutine;
 
+    [Header("Som de Dano (inimigos sem EnemyAudio)")]
+    public AudioClip hurtSound;
+    [Range(0f, 1f)] public float hurtVolume = 1f;
+    public AudioMixerGroup sfxGroup;
+
     private EnemyAudio enemyAudio;
     private BossController boss;
 
@@ -32,8 +37,6 @@ public class EnemyHealth : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         enemyAudio = GetComponent<EnemyAudio>();
-
-        // O BossController está no mesmo GameObject.
         boss = GetComponent<BossController>();
 
         if (healthBar != null)
@@ -49,6 +52,8 @@ public class EnemyHealth : MonoBehaviour
 
         if (enemyAudio != null)
             enemyAudio.PlayHurt(currentHealth <= 0);
+        else
+            PlayHurtSound();
 
         if (healthBar != null)
         {
@@ -84,6 +89,24 @@ public class EnemyHealth : MonoBehaviour
             boss.OnVidaMudou((float)currentHealth / maxHealth);
     }
 
+    private void PlayHurtSound()
+    {
+        if (hurtSound == null)
+            return;
+
+        GameObject temp = new GameObject("HurtSound");
+        temp.transform.position = transform.position;
+
+        AudioSource src = temp.AddComponent<AudioSource>();
+        src.clip = hurtSound;
+        src.volume = hurtVolume;
+        src.spatialBlend = 0f;
+        src.outputAudioMixerGroup = sfxGroup;
+        src.Play();
+
+        Destroy(temp, hurtSound.length);
+    }
+
     private IEnumerator BlinkCoroutine()
     {
         float elapsed = 0f;
@@ -104,7 +127,6 @@ public class EnemyHealth : MonoBehaviour
 
     private void Die()
     {
-        // Somente o boss abre a tela de vitória.
         if (boss != null)
         {
             boss.Parar();

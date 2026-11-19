@@ -368,7 +368,7 @@ MonoBehaviour:
   maxFallSpeed: 14
   audioSource: {fileID: 3328286678001640169}
   jumpSound: {fileID: 8300000, guid: 812a8791e9b2eca4cbcf5f12c55069db, type: 3}
-  jumpVolume: 0.42
+  jumpVolume: 0.472
   stepAudioSource: {fileID: 7420705027820603214}
   footstepSounds:
   - {fileID: 8300000, guid: 314c303331d103045803a0f17efeabce, type: 3}
@@ -387,6 +387,7 @@ MonoBehaviour:
   lookAheadDistance: 1.7
   knockbackForce: 8
   spriteRenderer: {fileID: 3664115451507539709}
+  animator: {fileID: 0}
   blinkDuration: 1
   blinkInterval: 0.1
   health: 3
@@ -442,6 +443,8 @@ MonoBehaviour:
   - {fileID: 0}
   cheio: {fileID: 6516092470362990796, guid: 8d5aa3227abe72b488ab99ff98ed5d36, type: 3}
   vazio: {fileID: 4769723110640154036, guid: 0053f61a3819e8b4ba4594d4405733d3, type: 3}
+  tempoInvulnerabilidade: 1.2
+  intervaloPiscar: 0.08
 --- !u!70 &1373380415396344776
 CapsuleCollider2D:
   m_ObjectHideFlags: 0

@@ -224,6 +224,9 @@ MonoBehaviour:
   canBeKnockedBack: 0
   blinkDuration: 0.4
   blinkInterval: 0.08
+  hurtSound: {fileID: 8300000, guid: 7314997f61d912b429c691cff7f7a3c3, type: 3}
+  hurtVolume: 1
+  sfxGroup: {fileID: 0}
 --- !u!114 &5341173493865454205
 MonoBehaviour:
   m_ObjectHideFlags: 0
