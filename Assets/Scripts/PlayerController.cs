@@ -174,6 +174,7 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("IsWalking", walking);
         animator.SetBool("IsGrounded", isGrounded);
+        animator.SetBool("IsJumping", !isGrounded);
     }
 
     private void HandleGroundCheck()
