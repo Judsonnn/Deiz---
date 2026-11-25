@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -74,9 +75,10 @@ public class GameManager : MonoBehaviour
             if (!musicaGameplay.isPlaying)
                 musicaGameplay.Play();
         }
-        else if (nomeCena == menuSceneName)
+        else
         {
-            musicaGameplay.Stop();
+            if (musicaGameplay.isPlaying)
+                musicaGameplay.Stop();
         }
     }
 

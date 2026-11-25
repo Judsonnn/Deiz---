@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
@@ -6,7 +7,8 @@ using UnityEngine.UI;
 public class MainMenuController : MonoBehaviour
 {
     [Header("Cena")]
-    public string gameplaySceneName = "SampleScene";
+    public string cutsceneSceneName = "Cutscene";
+    public string gameplaySceneName = "Fase1";
 
     [Header("Painel de Configurações")]
     public GameObject configPanel;
@@ -63,7 +65,8 @@ public class MainMenuController : MonoBehaviour
 
     public void OnClickIniciar()
     {
-        SceneManager.LoadScene(gameplaySceneName);
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(cutsceneSceneName);
     }
 
     public void AbrirConfiguracoes()
