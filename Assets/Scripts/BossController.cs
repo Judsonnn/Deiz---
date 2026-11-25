@@ -13,6 +13,14 @@ public class BossController : MonoBehaviour
     [SerializeField] private BossHealthBar barraVida;
     [SerializeField] private TrailRenderer rastro;
 
+    [Header("Visual")]
+    [SerializeField] private bool spriteOlhaParaDireita = true;
+
+    [Header("Animação")]
+    [SerializeField] private Animator animator;
+    [SerializeField] private int frameDoTiro = 8;
+    [SerializeField] private float samplesAtirando = 60f;
+
     [Header("Configurações gerais")]
     [SerializeField] private float raioVisao = 10f;
     [SerializeField] private float vidaFase2 = 0.5f;
@@ -24,7 +32,6 @@ public class BossController : MonoBehaviour
     [SerializeField] private Vector2 deslocamentoTiro = new Vector2(0.8f, 0f);
     [SerializeField] private float velocidadeProjetil = 10f;
     [SerializeField] private int danoProjetil = 1;
-    [SerializeField] private float tempoAntesDoTiro = 0.2f;
     [SerializeField] private float tempoAteODash = 2f;
 
     [Header("Dash")]
@@ -59,6 +66,9 @@ public class BossController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         meuCollider = GetComponentInChildren<Collider2D>();
+
+        if (animator == null)
+            animator = GetComponent<Animator>();
 
         if (rb != null)
             gravidadeOriginal = rb.gravityScale;
@@ -145,6 +155,11 @@ public class BossController : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
 
+        DefinirCorrendo(false);
+
+        if (animator != null)
+            animator.ResetTrigger("Atirar");
+
         DefinirRastro(false);
         DefinirAlpha(alphaOriginal);
     }
@@ -201,6 +216,8 @@ public class BossController : MonoBehaviour
 
     private IEnumerator Fase2()
     {
+        Debug.Log("[Boss] Fase 2 iniciada");
+
         while (true)
         {
             yield return Piscar(tempoTransicao);
@@ -213,6 +230,12 @@ public class BossController : MonoBehaviour
         }
     }
 
+    private void VirarPara(float direcao)
+    {
+        bool inverter = spriteOlhaParaDireita ? direcao < 0f : direcao > 0f;
+        sprite.flipX = inverter;
+    }
+
     private IEnumerator AtirarEEsperar()
     {
         if (player == null)
@@ -222,9 +245,14 @@ public class BossController : MonoBehaviour
             ? 1f
             : -1f;
 
-        sprite.flipX = direcao < 0f;
+        VirarPara(direcao);
 
-        yield return new WaitForSeconds(tempoAntesDoTiro);
+        if (animator != null)
+            animator.SetTrigger("Atirar");
+
+        float atrasoDoTiro = frameDoTiro / samplesAtirando;
+
+        yield return new WaitForSeconds(atrasoDoTiro);
 
         if (projetilPrefab == null)
         {
@@ -252,18 +280,27 @@ public class BossController : MonoBehaviour
     {
         float diferenca = alvoX - rb.position.x;
 
+        Debug.Log("[Boss] Dash pedido | alvoX=" + alvoX.ToString("F2")
+            + " | posX=" + rb.position.x.ToString("F2")
+            + " | distância=" + Mathf.Abs(diferenca).ToString("F2"));
+
         if (Mathf.Abs(diferenca) < 0.25f)
+        {
+            Debug.Log("[Boss] Dash ignorado: distância menor que 0.25");
             yield break;
+        }
 
         float direcao = diferenca > 0f ? 1f : -1f;
 
-        sprite.flipX = direcao < 0f;
+        VirarPara(direcao);
 
         invulneravel = true;
         perigoso = true;
 
+        DefinirCorrendo(true);
         DefinirRastro(true);
 
+        float inicioDash = Time.time;
         float limite = Time.time + tempoMaximoDash;
 
         while (Time.time < limite && !Chegou(direcao, alvoX))
@@ -283,8 +320,13 @@ public class BossController : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
 
+        Debug.Log("[Boss] Dash terminou | posX=" + rb.position.x.ToString("F2")
+            + " | duração=" + (Time.time - inicioDash).ToString("F2")
+            + " | chegou=" + Chegou(direcao, alvoX));
+
         PararHorizontal();
 
+        DefinirCorrendo(false);
         DefinirRastro(false);
 
         if (encerrar)
@@ -296,6 +338,8 @@ public class BossController : MonoBehaviour
 
     private IEnumerator DashDuplo()
     {
+        Debug.Log("[Boss] DashDuplo começou");
+
         float inicioX = rb.position.x;
 
         float alvoX = Mathf.Clamp(
@@ -313,6 +357,17 @@ public class BossController : MonoBehaviour
         yield return Dash(primeiroAlvoX, false);
 
         yield return new WaitForSeconds(pausaEntreDashes);
+
+        Debug.Log("[Boss] Pausa acabou, indo para o segundo dash");
+
+        if (player != null)
+        {
+            alvoX = Mathf.Clamp(
+                player.position.x,
+                limiteEsquerdo.position.x,
+                limiteDireito.position.x
+            );
+        }
 
         yield return Dash(alvoX, true);
 
@@ -350,10 +405,12 @@ public class BossController : MonoBehaviour
 
     private bool Chegou(float direcao, float alvoX)
     {
-        if (direcao > 0f)
-            return rb.position.x >= alvoX;
+        const float tolerancia = 0.05f;
 
-        return rb.position.x <= alvoX;
+        if (direcao > 0f)
+            return rb.position.x >= alvoX - tolerancia;
+
+        return rb.position.x <= alvoX + tolerancia;
     }
 
     private void PararHorizontal()
@@ -390,6 +447,12 @@ public class BossController : MonoBehaviour
         Color cor = sprite.color;
         cor.a = alpha;
         sprite.color = cor;
+    }
+
+    private void DefinirCorrendo(bool valor)
+    {
+        if (animator != null)
+            animator.SetBool("Correndo", valor);
     }
 
     private void DefinirRastro(bool ativo)
