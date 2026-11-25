@@ -9970,19 +9970,19 @@ PrefabInstance:
       objectReference: {fileID: 7111294492685666490, guid: 5ea104bac9a1207408202ff4e3e02c75, type: 3}
     - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 529789258}
+      objectReference: {fileID: 1325566888}
     - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActive
+      value: AbrirConfiguracoes
       objectReference: {fileID: 0}
     - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: UnityEngine.GameObject, UnityEngine
+      value: PauseManager, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 5871300196627951218, guid: b8ab8b57605daae48b7d43caf9f88211, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
@@ -11138,6 +11138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PauseManager
   pauseKey: 13
   pauseMenuUI: {fileID: 473162641}
+  configPanelUI: {fileID: 529789258}
   mainMenuSceneName: MainMenu
 --- !u!114 &1325566889
 MonoBehaviour:
