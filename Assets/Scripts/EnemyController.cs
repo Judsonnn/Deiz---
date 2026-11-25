@@ -10,6 +10,10 @@ public class EnemyController : MonoBehaviour
     private bool canDamage = true;
     public float damageCooldown = 1f;
 
+    [Header("Visual")]
+    public bool spriteFacesRight = true;
+    private Vector3 baseScale;
+
     [Header("Ground Check")]
     public Transform groundCheck;
     public float groundCheckDistance = 1f;
@@ -50,6 +54,8 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
+        baseScale = transform.localScale;
+
         patrolStartPosition = transform.position;
         patrolDirection = patrolRight ? 1 : -1;
         enemyAudio = GetComponent<EnemyAudio>();
@@ -76,6 +82,17 @@ public class EnemyController : MonoBehaviour
         }
 
         AttackPlayer();
+    }
+
+    private void FaceDirection(int direction)
+    {
+        bool flip = spriteFacesRight ? direction < 0 : direction > 0;
+
+        transform.localScale = new Vector3(
+            flip ? -Mathf.Abs(baseScale.x) : Mathf.Abs(baseScale.x),
+            baseScale.y,
+            baseScale.z
+        );
     }
 
     private bool CheckLostPlayer()
@@ -142,17 +159,11 @@ public class EnemyController : MonoBehaviour
         }
 
         transform.Translate(
-            Vector2.right * patrolDirection * patrolSpeed * Time.deltaTime
+            Vector2.right * patrolDirection * patrolSpeed * Time.deltaTime,
+            Space.World
         );
 
-        if (patrolDirection > 0)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-        else
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
+        FaceDirection(patrolDirection);
     }
 
     private void AttackPlayer()
@@ -204,31 +215,17 @@ public class EnemyController : MonoBehaviour
             transform.position.y
         );
 
-        if (player.position.x > transform.position.x)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
+        int direction = player.position.x > transform.position.x ? 1 : -1;
 
-            if (groundAhead)
-            {
-                transform.position = Vector2.MoveTowards(
-                    transform.position,
-                    targetPosition,
-                    currentSpeed * Time.deltaTime
-                );
-            }
-        }
-        else
-        {
-            transform.localScale = new Vector3(1, 1, 1);
+        FaceDirection(direction);
 
-            if (groundAhead)
-            {
-                transform.position = Vector2.MoveTowards(
-                    transform.position,
-                    targetPosition,
-                    currentSpeed * Time.deltaTime
-                );
-            }
+        if (groundAhead)
+        {
+            transform.position = Vector2.MoveTowards(
+                transform.position,
+                targetPosition,
+                currentSpeed * Time.deltaTime
+            );
         }
     }
 
