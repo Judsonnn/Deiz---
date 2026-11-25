@@ -14,6 +14,13 @@ public class PlayerShooter : MonoBehaviour
     public KeyCode shootKey1 = KeyCode.Z;
     public KeyCode shootKey2 = KeyCode.L;
 
+    [Header("Animator")]
+    public Animator animator;
+
+    [Header("Sincronia do Tiro")]
+    public float shotDelay = 0.48f;
+    public float fireCooldown = 0.7f;
+
     [Header("Áudio")]
     public AudioSource shootAudioSource;
     public AudioClip shootSound;
@@ -50,6 +57,16 @@ public class PlayerShooter : MonoBehaviour
     private bool isCooling = false;
 
     private float firePointOffsetX;
+    private float nextShotTime = 0f;
+
+    void Awake()
+    {
+        if (animator == null)
+            animator = GetComponentInParent<Animator>();
+
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
+    }
 
     void Start()
     {
@@ -83,6 +100,9 @@ public class PlayerShooter : MonoBehaviour
             return;
         }
 
+        if (Time.time < nextShotTime)
+            return;
+
         if (Input.GetKeyDown(shootKey1) || Input.GetKeyDown(shootKey2))
             Shoot();
     }
@@ -100,32 +120,12 @@ public class PlayerShooter : MonoBehaviour
             return;
         }
 
-        GameObject bullet = Instantiate(
-            bulletPrefab,
-            firePoint.position,
-            Quaternion.identity
-        );
+        nextShotTime = Time.time + fireCooldown;
 
-        if (shootAudioSource != null && shootSound != null)
-        {
-            shootAudioSource.PlayOneShot(shootSound);
-        }
+        if (animator != null)
+            animator.SetTrigger("Atirar");
 
-        Bullet bulletScript = bullet.GetComponent<Bullet>();
-
-        if (bulletScript != null)
-        {
-            bulletScript.Init(
-                facingRight ? 1f : -1f,
-                bulletSpeed,
-                damage
-            );
-        }
-
-        SpriteRenderer bulletRenderer = bullet.GetComponentInChildren<SpriteRenderer>();
-
-        if (bulletRenderer != null)
-            bulletRenderer.flipX = !facingRight;
+        StartCoroutine(FireBullet(facingRight));
 
         currentHeat += heatPerShot;
 
@@ -144,6 +144,39 @@ public class PlayerShooter : MonoBehaviour
             currentHeat = maxHeat;
             TriggerOverheat();
         }
+    }
+
+    private IEnumerator FireBullet(bool shootRight)
+    {
+        yield return new WaitForSeconds(shotDelay);
+
+        if (bulletPrefab == null || firePoint == null)
+            yield break;
+
+        GameObject bullet = Instantiate(
+            bulletPrefab,
+            firePoint.position,
+            Quaternion.identity
+        );
+
+        if (shootAudioSource != null && shootSound != null)
+            shootAudioSource.PlayOneShot(shootSound);
+
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+
+        if (bulletScript != null)
+        {
+            bulletScript.Init(
+                shootRight ? 1f : -1f,
+                bulletSpeed,
+                damage
+            );
+        }
+
+        SpriteRenderer bulletRenderer = bullet.GetComponentInChildren<SpriteRenderer>();
+
+        if (bulletRenderer != null)
+            bulletRenderer.flipX = !shootRight;
     }
 
     private void TriggerOverheat()

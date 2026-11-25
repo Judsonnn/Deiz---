@@ -281,6 +281,9 @@ MonoBehaviour:
   damage: 1
   shootKey1: 122
   shootKey2: 108
+  animator: {fileID: 0}
+  shotDelay: 0.48
+  fireCooldown: 0.3
   shootAudioSource: {fileID: 5877140862700955322}
   shootSound: {fileID: 8300000, guid: 8eb24a407dcaad646b022fc4d6db582c, type: 3}
   overheatAudioSource: {fileID: 620803859382563469}
